@@ -1,0 +1,8 @@
+---
+title: "Data Analysis Recreation"
+author: "Gentry Miller and Zollikofer et al."
+format: html
+editor: visual
+---
+
+## Data Analysis Recreation
