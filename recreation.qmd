@@ -1,11 +1,13 @@
 ---
-title: "Data Analysis Recreation"
-author: "Gentry Miller and Zollikofer et al."
+title: "Data Analysis Replication"
+author: "Gentry Miller"
 format: html
 editor: visual
 ---
 
-## Data Analysis Recreation
+# The evolution of the adolescent growth spurt: Urinary biomarkers of bone turnover in wild chimpanzees (*Pan troglodytes*)
+
+**Aaron A. Sandel, Jacob D. Negrey, Milja Arponen, Isabelle R. Clark, Jeremy B. Clift, Rachna B. Reddy, Kaisa K. Ivaska**
 
 ### What?
 
@@ -13,14 +15,15 @@ editor: visual
 
 ### How?
 
-rates of behavior and percentages of observations (frequencies)
+```{r}
+#| label: packages
+#| echo: true
+#| message: false
+#| warning: false
+#| code-overflow: wrap
 
-2 categories: interest and handling
-
-ages of infants
-
-sex and age class of handlers
-
-for handling: incidence of positive and negative behaviors
-
-chisq to examine if variation in interest and handling was influenced by infant age (months, w. expected frequencies weighted by observation effort per infant age) and by age and sex class of handlers
+library(mgcv)
+library(gratia)
+library(segmented)
+library(tidyverse)
+```
