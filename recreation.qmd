@@ -57,7 +57,7 @@ oc1_age <- osteoc1$sampleAge
 We then apply a Box-Cox transformation to the biomarker concentration data to ensure we meet the assumptions of generalized additive modelling (GAM) and segmented regression (SR) and increase our confidence in the models:
 
 ```{r}
-#| label: Box-Cox
+#| label: Box-Cox - Calculating Lambda
 
 # Box-Cox requires positive values, but the osteocalcin concentrations for Fisher are all 0. The paper doesn't specify how they handled this, so I'm adding a 1e-9 to every value to maintain a similar scale but not exclude the values.
 oc1_con[] <- oc1_con[] + 1e-9
@@ -75,10 +75,49 @@ title("B. Osteocalcin")
 par(mfrow = c(1,1))
 ```
 
-Using the `gam()` function from the `mgcv` package, GAMs are created
+Now that we have our $\lambda$ we can apply the transformation to approximate a normal residual distribution:
 
 ```{r}
-#| generalized additive models
+#| label: Box-Cox - Extracting Lambda
+#| echo: TRUE
+#| results: markup
+#| fig-show: hide
 
-collag_gam1
+# extract the lambda 
+b <- boxcox(lm(c1_con ~ c1_age))
+lambda_c <- b$x[which.max(b$y)]
+
+# extract the lambda
+b <- boxcox(lm(oc1_con ~ oc1_age))
+lambda_oc <- b$x[which.max(b$y)]
+```
+
+Both our $\lambda$ values are above 0, which we can verify as such
+
+```{r}
+#| label: Box-Cox - Checking Lambda
+#| echo: false
+#| eval: true
+
+paste0("Collagen Lambda: ", round(lambda_c, 5))
+paste0("Osteocalcin Lambda: ", round(lambda_oc, 5))
+```
+
+Since $\lambda$ is greater than 0, we use the formula `(y^lambda - 1) / lambda`
+
+```{r}
+#| label: Box-Cox - Applying Transformation
+
+# apply the transformation
+c_conT <- (c1_con^lambda_c - 1) / lambda_c
+oc_conT <- (oc1_con^lambda_oc - 1) / lambda_oc
+```
+
+Now that our data is transformed, we can create GAMs using the `gam()` function from the `mgcv` package.
+
+```{r}
+#| label: generalized additive models
+
+collag_gam_mf <- gam()
+
 ```
