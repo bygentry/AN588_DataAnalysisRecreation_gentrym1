@@ -22,8 +22,8 @@ library("multilevelTools")
 library("tidyverse")
 
 #Import datasets
-collag <- read.csv("Collagen_Ngogo")
-osteoc <- read.csv("Osteocalcin_Ngogo")
+collag <- read.csv("https://github.com/bygentry/AN588_DataAnalysisRecreation_gentrym1/raw/refs/heads/main/Resources/Ngogo-collagen.csv")
+osteoc <- read.csv("https://github.com/bygentry/AN588_DataAnalysisRecreation_gentrym1/raw/refs/heads/main/Resources/Ngogo-osteocalcin.csv")
 
 #Reformat as tables
 collag <- tibble::as_tibble(collag)

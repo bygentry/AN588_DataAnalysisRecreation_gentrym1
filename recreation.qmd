@@ -19,15 +19,10 @@ editor: visual
 ### How?
 
 ```{r}
-#| label: packages
+#| label: steup
 #| echo: true
 #| message: false
 #| warning: false
 
 
-```
-
-```{r}
-#| label: data
-#| 
 ```
