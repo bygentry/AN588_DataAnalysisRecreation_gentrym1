@@ -24,5 +24,5 @@ editor: visual
 #| message: false
 #| warning: false
 
-
+source("https://raw.githubusercontent.com/bygentry/AN588_DataAnalysisRecreation_gentrym1/refs/heads/main/scripts/steup.R")
 ```
