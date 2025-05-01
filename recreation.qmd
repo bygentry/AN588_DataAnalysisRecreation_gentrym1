@@ -1,7 +1,10 @@
 ---
 title: "Data Analysis Replication"
 author: "Gentry Miller"
-format: html
+format: 
+  html:
+    code-overflow: wrap
+    
 editor: visual
 ---
 
@@ -20,10 +23,11 @@ editor: visual
 #| echo: true
 #| message: false
 #| warning: false
-#| code-overflow: wrap
 
-library(mgcv)
-library(gratia)
-library(segmented)
-library(tidyverse)
+
+```
+
+```{r}
+#| label: data
+#| 
 ```
