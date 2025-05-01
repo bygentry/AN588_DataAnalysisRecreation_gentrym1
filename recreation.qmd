@@ -26,3 +26,59 @@ editor: visual
 
 source("https://raw.githubusercontent.com/bygentry/AN588_DataAnalysisRecreation_gentrym1/refs/heads/main/scripts/steup.R")
 ```
+
+Using our setup script, we load the necessary packages and data before prepping the data for analysis. To prepare the data and maintain consistency with the original analysis,
+
+1.  both .csv files are transformed to tables
+2.  "Morton"'s sample is removed
+3.  the time variable is reformatted to h:m:s
+4.  continuous variables are standardized using Z-transformation
+5.  relevant variables are extracted
+6.  `NA` values are omitted from the data sets.
+
+Let's make some pointers for easier calls throughout this analysis:
+
+```{r}
+#| label: Creating Pointers
+#| echo: true 
+#| message: false
+
+# the concentration of collagen corrected for standard gravity
+c1_con <- collag1$NTXnM_SG
+# the ages across sample collection dates
+c1_age <- collag1$sampleAge
+
+# the concentration of osteocalcin corrected for standard gravity
+oc1_con <- osteoc1$uMidOC_SG
+# the ages across sample collection dates
+oc1_age <- osteoc1$sampleAge
+```
+
+We then apply a Box-Cox transformation to the biomarker concentration data to ensure we meet the assumptions of generalized additive modelling (GAM) and segmented regression (SR) and increase our confidence in the models:
+
+```{r}
+#| label: Box-Cox
+
+# Box-Cox requires positive values, but the osteocalcin concentrations for Fisher are all 0. The paper doesn't specify how they handled this, so I'm adding a 1e-9 to every value to maintain a similar scale but not exclude the values.
+oc1_con[] <- oc1_con[] + 1e-9
+
+# create a plot grid to present the boxcox results side-by-side
+par(mfrow = c(1, 2))
+
+# use Box-Cox from the MASS package to estimate the optimal lambda for approximating normality
+boxcox(lm(c1_con ~ c1_age))
+title("A. Collagen")
+boxcox(lm(oc1_con ~ oc1_age))
+title("B. Osteocalcin")
+
+# reset plot grid setting
+par(mfrow = c(1,1))
+```
+
+Using the `gam()` function from the `mgcv` package, GAMs are created
+
+```{r}
+#| generalized additive models
+
+collag_gam1
+```
