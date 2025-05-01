@@ -6,3 +6,21 @@ editor: visual
 ---
 
 ## Data Analysis Recreation
+
+### What?
+
+### Why?
+
+### How?
+
+rates of behavior and percentages of observations (frequencies)
+
+2 categories: interest and handling
+
+ages of infants
+
+sex and age class of handlers
+
+for handling: incidence of positive and negative behaviors
+
+chisq to examine if variation in interest and handling was influenced by infant age (months, w. expected frequencies weighted by observation effort per infant age) and by age and sex class of handlers
