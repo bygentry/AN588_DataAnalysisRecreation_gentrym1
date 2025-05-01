@@ -12,14 +12,11 @@ editor: visual
 
 **Aaron A. Sandel, Jacob D. Negrey, Milja Arponen, Isabelle R. Clark, Jeremy B. Clift, Rachna B. Reddy, Kaisa K. Ivaska**
 
-### What?
-
-### Why?
-
-### How?
+```{r setup, include=FALSEecho=true, warning=false, comment="##", prompt=true, tidy=true, tidy.opts=list(width.cutoff=75), fig.path="img/"}
+```
 
 ```{r}
-#| label: steup
+#| label: setup2
 #| echo: true
 #| message: false
 #| warning: false
@@ -118,6 +115,23 @@ Now that our data is transformed, we can create GAMs using the `gam()` function 
 ```{r}
 #| label: generalized additive models
 
-collag_gam_mf <- gam()
+# both sexes
+cgam_mf <- gam(c_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = collag1)
 
+ocgam_mf <- gam(oc_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = osteoc1)
+
+# males only
+cgam_m <- gam(c_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = collag1, subset = Sex == "Male")
+
+ocgam_m <- gam(oc_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = osteoc1, subet = Sex == "Male")
+
+# females only
+cgam_f <- gam(c_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = collag1, subset = Sex == "Female")
+
+ocgam_f <- gam(oc_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = osteoc1, subset = Sex == "Female")
+```
+
+```{r}
+ggplot(collag1, aes(x = sampleAge, y = c_conT)) + 
+  abline()
 ```
