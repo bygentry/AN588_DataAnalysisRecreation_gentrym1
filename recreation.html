@@ -595,7 +595,7 @@ Caused by warning in `min()`:
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
 <td style="text-align: right;">8.026566</td>
-<td style="text-align: right;">25.22747</td>
+<td style="text-align: right;">24.59040</td>
 <td style="text-align: left;">ogam_f</td>
 </tr>
 </tbody>
@@ -978,60 +978,148 @@ OsteocalcinF  numeric,0</code></pre>
 <section id="summarizing-results" class="level3">
 <h3 class="anchored" data-anchor-id="summarizing-results">Summarizing Results</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>get.trends <span class="ot">&lt;-</span> <span class="cf">function</span>(model, name){</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(model, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">trend =</span> <span class="fu">case_when</span>(</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>        .lower_ci <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"increasing"</span>,</span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>        .upper_ci <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"decreasing"</span>,</span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"nonsig"</span></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    ) </span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  dts <span class="ot">&lt;-</span> dts <span class="sc">%&gt;%</span> </span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">grp =</span> <span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="fu">diff</span>(trend <span class="sc">!=</span> <span class="fu">lag</span>(trend, <span class="at">default =</span> <span class="fu">first</span>(trend))) <span class="sc">!=</span> <span class="dv">0</span>)))</span>
-<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>  period_list <span class="ot">&lt;-</span> dts <span class="sc">%&gt;%</span> </span>
-<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(trend <span class="sc">!=</span> <span class="st">"none"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(trend, grp) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
-<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">start =</span> <span class="fu">min</span>(dts<span class="sc">$</span>mean_age),</span>
-<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">end =</span> <span class="fu">max</span>(dts<span class="sc">$</span>mean_age),</span>
-<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(period_list)</span>
-<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(peak_ages) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"cgam_mf"</span>, <span class="st">"cgam_m"</span>, <span class="st">"cgam_f"</span>, <span class="st">"ogam_mf"</span>, <span class="st">"ogam_m"</span>, <span class="st">"ogam_f"</span>)</span>
-<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Collagen (All)"</span>, <span class="st">"Collagen (Male)"</span>, <span class="st">"Collagen (Female)"</span>, <span class="st">"Osteocalcin (All)"</span>, <span class="st">"Osteocalcin (Male)"</span>, <span class="st">"Osteocalcin (Female)"</span>)</span>
-<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>model.names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"cgam_mf"</span>, <span class="st">"cgam_m"</span>, <span class="st">"cgam_f"</span>, <span class="st">"ogam_mf"</span>, <span class="st">"ogam_m"</span>, <span class="st">"ogam_f"</span>)</span>
-<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>full_summary <span class="ot">&lt;-</span> <span class="fu">map2_dfr</span>(models, names, model.names, <span class="cf">function</span>(model, name, model.name){</span>
-<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">summary</span>(model)</span>
-<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>  peak <span class="ot">&lt;-</span> peak_ages<span class="sc">$</span>model.name</span>
-<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>  trends <span class="ot">&lt;-</span> <span class="fu">get.trends</span>(model, name)</span>
-<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
-<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model =</span> name,</span>
-<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">N =</span> <span class="fu">nrow</span>(model<span class="sc">$</span>model),</span>
-<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">EDF =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"edf"</span>], <span class="dv">2</span>),</span>
-<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ref.DF =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"Ref.df"</span>], <span class="dv">2</span>),</span>
-<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">.F =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"F"</span>], <span class="dv">2</span>),</span>
-<span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">p.value =</span> <span class="fu">signif</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"p-value"</span>], <span class="dv">3</span>),</span>
-<span id="cb34-41"><a href="#cb34-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">Peak.Age =</span> <span class="fu">round</span>(peak, <span class="dv">2</span>),</span>
-<span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sig.Increase =</span> <span class="fu">paste</span>(trends <span class="sc">%&gt;%</span> <span class="fu">filter</span>(trend <span class="sc">==</span> <span class="st">"increase"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">interval =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(start, <span class="dv">2</span>), <span class="st">"-"</span>, <span class="fu">round</span>(end, <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pull</span>(interval), <span class="at">collapse =</span> <span class="st">"; "</span>),</span>
-<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sig.Decrease =</span> <span class="fu">paste</span>(trends <span class="sc">%&gt;%</span> <span class="fu">filter</span>(trend <span class="sc">==</span> <span class="st">"decrease"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">interval =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(start, <span class="dv">2</span>), <span class="st">"-"</span>, <span class="fu">round</span>(end, <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pull</span>(interval), <span class="at">collapse =</span> <span class="st">"; "</span>)</span>
-<span id="cb34-48"><a href="#cb34-48" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb34-49"><a href="#cb34-49" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb34-50"><a href="#cb34-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-51"><a href="#cb34-51" aria-hidden="true" tabindex="-1"></a>full_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">#full_summary &lt;- pmap_dfr(list(models, table_names, model.names), function(model, table_name, model.name){</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  print(class(model.name))</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    }</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co">#  )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(peak_ages) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"cgam_mf"</span>, <span class="st">"cgam_m"</span>, <span class="st">"cgam_f"</span>, <span class="st">"ogam_mf"</span>, <span class="st">"ogam_m"</span>, <span class="st">"ogam_f"</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>table_names <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"Collagen (All)"</span>, <span class="st">"Collagen (Male)"</span>, <span class="st">"Collagen (Female)"</span>, <span class="st">"Osteocalcin (All)"</span>, <span class="st">"Osteocalcin (Male)"</span>, <span class="st">"Osteocalcin (Female)"</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>model.names <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"cgam_mf"</span>, <span class="st">"cgam_m"</span>, <span class="st">"cgam_f"</span>, <span class="st">"ogam_mf"</span>, <span class="st">"ogam_m"</span>, <span class="st">"ogam_f"</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>get.trends <span class="ot">&lt;-</span> <span class="cf">function</span>(model, table_name){</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(model, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">trend =</span> <span class="fu">case_when</span>(</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        .lower_ci <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"increasing"</span>,</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        .upper_ci <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"decreasing"</span>,</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"nonsig"</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    ) </span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>  dts <span class="ot">&lt;-</span> dts <span class="sc">%&gt;%</span> </span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">grp =</span> <span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="fu">diff</span>(trend <span class="sc">!=</span> <span class="fu">lag</span>(trend, <span class="at">default =</span> <span class="fu">first</span>(trend))) <span class="sc">!=</span> <span class="dv">0</span>)))</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>  period_list <span class="ot">&lt;-</span> dts <span class="sc">%&gt;%</span> </span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(trend <span class="sc">!=</span> <span class="st">"nonsig"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(trend, grp) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">start =</span> <span class="fu">min</span>(dts<span class="sc">$</span>mean_age),</span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">end =</span> <span class="fu">max</span>(dts<span class="sc">$</span>mean_age),</span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(period_list)</span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>inputs <span class="ot">&lt;-</span> <span class="fu">list</span>(models, table_names, model.names)</span>
+<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a>full_summary <span class="ot">&lt;-</span> <span class="fu">pmap_dfr</span>(inputs, <span class="cf">function</span>(model, table_name, model.name){</span>
+<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">summary</span>(model)</span>
+<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a>  peak <span class="ot">&lt;-</span> peak_ages[[model.name]]</span>
+<span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a>  trends <span class="ot">&lt;-</span> <span class="fu">get.trends</span>(model, table_name)</span>
+<span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb35-37"><a href="#cb35-37" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> trends <span class="sc">%&gt;%</span> </span>
+<span id="cb35-38"><a href="#cb35-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(trend <span class="sc">==</span> <span class="st">"increase"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb35-39"><a href="#cb35-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">interval =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(start, <span class="dv">2</span>), <span class="st">"-"</span>, <span class="fu">round</span>(end, <span class="dv">2</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-40"><a href="#cb35-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(interval) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-41"><a href="#cb35-41" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"; "</span>)</span>
+<span id="cb35-42"><a href="#cb35-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb35-43"><a href="#cb35-43" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> trends <span class="sc">%&gt;%</span></span>
+<span id="cb35-44"><a href="#cb35-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(trend <span class="sc">==</span> <span class="st">"decrease"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-45"><a href="#cb35-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">interval =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(start, <span class="dv">2</span>), <span class="st">"-"</span>, <span class="fu">round</span>(end, <span class="dv">2</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-46"><a href="#cb35-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(interval) <span class="sc">%&gt;%</span> </span>
+<span id="cb35-47"><a href="#cb35-47" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"; "</span>)</span>
+<span id="cb35-48"><a href="#cb35-48" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb35-49"><a href="#cb35-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb35-50"><a href="#cb35-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model =</span> table_name,</span>
+<span id="cb35-51"><a href="#cb35-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">N =</span> <span class="fu">nrow</span>(model<span class="sc">$</span>model),</span>
+<span id="cb35-52"><a href="#cb35-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">EDF =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"edf"</span>], <span class="dv">2</span>),</span>
+<span id="cb35-53"><a href="#cb35-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ref.DF =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"Ref.df"</span>], <span class="dv">2</span>),</span>
+<span id="cb35-54"><a href="#cb35-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">.F =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"F"</span>], <span class="dv">2</span>),</span>
+<span id="cb35-55"><a href="#cb35-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">p.value =</span> <span class="fu">signif</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"p-value"</span>], <span class="dv">3</span>),</span>
+<span id="cb35-56"><a href="#cb35-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">Peak.Age =</span> <span class="fu">round</span>(peak, <span class="dv">2</span>),</span>
+<span id="cb35-57"><a href="#cb35-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sig.Increase =</span> a,</span>
+<span id="cb35-58"><a href="#cb35-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sig.Decrease =</span> b</span>
+<span id="cb35-59"><a href="#cb35-59" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb35-60"><a href="#cb35-60" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb35-61"><a href="#cb35-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-62"><a href="#cb35-62" aria-hidden="true" tabindex="-1"></a>full_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="kable-table">
-
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 4%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 9%">
+<col style="width: 10%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">N</th>
+<th style="text-align: right;">EDF</th>
+<th style="text-align: right;">Ref.DF</th>
+<th style="text-align: right;">.F</th>
+<th style="text-align: right;">p.value</th>
+<th style="text-align: right;">Peak.Age</th>
+<th style="text-align: left;">Sig.Increase</th>
+<th style="text-align: left;">Sig.Decrease</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Collagen (All)</td>
+<td style="text-align: right;">109</td>
+<td style="text-align: right;">5.10</td>
+<td style="text-align: right;">5.89</td>
+<td style="text-align: right;">11.83</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">10.16</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Collagen (Male)</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">5.53</td>
+<td style="text-align: right;">6.41</td>
+<td style="text-align: right;">10.22</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">10.98</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Osteocalcin (All)</td>
+<td style="text-align: right;">106</td>
+<td style="text-align: right;">5.37</td>
+<td style="text-align: right;">6.17</td>
+<td style="text-align: right;">11.03</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">8.24</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Osteocalcin (Male)</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">4.53</td>
+<td style="text-align: right;">5.38</td>
+<td style="text-align: right;">3.62</td>
+<td style="text-align: right;">0.0049</td>
+<td style="text-align: right;">9.47</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>

@@ -596,18 +596,18 @@ ggarrange(p.cgf, p.ogf, p.csf, p.osf, nrow = 2, ncol = 2)
 ### Summarizing Results
 
 ```{r}
-full_summary <- pmap_dfr(list(models, labs, model.names), function(model, name, model.name){
-  print(class(model.name))
-    }
-  )
+#full_summary <- pmap_dfr(list(models, table_names, model.names), function(model, table_name, model.name){
+#  print(class(model.name))
+#    }
+#  )
 ```
 
 ```{r}
 names(peak_ages) <- c("cgam_mf", "cgam_m", "cgam_f", "ogam_mf", "ogam_m", "ogam_f")
-labs <- c("Collagen (All)", "Collagen (Male)", "Collagen (Female)", "Osteocalcin (All)", "Osteocalcin (Male)", "Osteocalcin (Female)")
-model.names <- c("cgam_mf", "cgam_m", "cgam_f", "ogam_mf", "ogam_m", "ogam_f")
+table_names <- list("Collagen (All)", "Collagen (Male)", "Collagen (Female)", "Osteocalcin (All)", "Osteocalcin (Male)", "Osteocalcin (Female)")
+model.names <- list("cgam_mf", "cgam_m", "cgam_f", "ogam_mf", "ogam_m", "ogam_f")
 
-get.trends <- function(model, lab){
+get.trends <- function(model, table_name){
   dts <- derivatives(model, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE) %>% 
     mutate(
       trend = case_when(
@@ -632,12 +632,12 @@ get.trends <- function(model, lab){
   return(period_list)
 }
 
-inputs <- list(models, labs, model.names)
+inputs <- list(models, table_names, model.names)
 
-full_summary <- pmap_dfr(inputs, function(model, lab, model.name){
+full_summary <- pmap_dfr(inputs, function(model, table_name, model.name){
   s <- summary(model)
   peak <- peak_ages[[model.name]]
-  trends <- get.trends(model, lab)
+  trends <- get.trends(model, table_name)
   
   a <- trends %>% 
     filter(trend == "increase") %>%
@@ -652,7 +652,7 @@ full_summary <- pmap_dfr(inputs, function(model, lab, model.name){
       paste(collapse = "; ")
   
   tibble(
-    Model = lab,
+    Model = table_name,
     N = nrow(model$model),
     EDF = round(s$s.table[1, "edf"], 2),
     Ref.DF = round(s$s.table[1, "Ref.df"], 2),
