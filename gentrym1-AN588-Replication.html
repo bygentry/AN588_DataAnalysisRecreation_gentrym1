@@ -573,14 +573,14 @@ Caused by warning in `min()`:
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
-<td style="text-align: right;">12.981566</td>
+<td style="text-align: right;">13.482593</td>
 <td style="text-align: right;">16.98978</td>
 <td style="text-align: left;">cgam_m</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
-<td style="text-align: right;">13.760202</td>
+<td style="text-align: right;">15.034343</td>
 <td style="text-align: right;">20.76798</td>
 <td style="text-align: left;">cgam_f</td>
 </tr>
@@ -588,7 +588,7 @@ Caused by warning in `min()`:
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
 <td style="text-align: right;">12.729091</td>
-<td style="text-align: right;">36.47636</td>
+<td style="text-align: right;">35.19273</td>
 <td style="text-align: left;">ogam_mf</td>
 </tr>
 <tr class="odd">
@@ -973,6 +973,8 @@ OsteocalcinF  numeric,0</code></pre>
 <figcaption>Biomarker levels in female chimpanzees. We transformed collagen and osteocalcin values to approximate a normal residual distribution. The solid blue lines (upper panels) represent the generalized additive models (GAMs) with confidence intervals as dashed lines; red lines (lower panels) represent segmented regression. Among female chimpanzees, GAMs suggest an incrementally lower turnover with age, but segmented regressions indicate a peak at 13 years for collagen and 7 years for osteocalcin.</figcaption>
 </figure>
 </div>
+<p><strong>Discussion</strong></p>
+<p>My models are all very similar to Sandel et al.’s - the biggest difference is in the female models where my analysis identified one additional breakpoint at about 4.3. Notably, the values on the Y axis of my osteocalcin plots are opposite Sandel’s and I can’t figure out why. I wonder if they manually changed the scale for the axis labels to aid interpretation. I tried inverting the values when I perform the Box-Cox transformation but it just reflected the whole graph over the X axis including the fit line.</p>
 </section>
 </section>
 <section id="summarizing-results" class="level3">
@@ -1089,7 +1091,7 @@ OsteocalcinF  numeric,0</code></pre>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: right;">10.98</td>
 <td style="text-align: left;">NA</td>
-<td style="text-align: left;">12.98-16.99</td>
+<td style="text-align: left;">13.48-16.99</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Collagen (Female)</td>
@@ -1100,7 +1102,7 @@ OsteocalcinF  numeric,0</code></pre>
 <td style="text-align: left;">0.001</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: left;">NA</td>
-<td style="text-align: left;">13.76-20.77</td>
+<td style="text-align: left;">15.03-20.77</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Osteocalcin (All)</td>
@@ -1111,7 +1113,7 @@ OsteocalcinF  numeric,0</code></pre>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: right;">8.24</td>
 <td style="text-align: left;">NA</td>
-<td style="text-align: left;">12.73-36.48</td>
+<td style="text-align: left;">12.73-35.19</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Osteocalcin (Male)</td>
@@ -1143,6 +1145,7 @@ OsteocalcinF  numeric,0</code></pre>
 <section id="sandel-et-al.-table-1" class="level4">
 <h4 class="anchored" data-anchor-id="sandel-et-al.-table-1">Sandel et al.&nbsp;Table 1</h4>
 <p><img src="img/table1.png" class="img-fluid"></p>
+<p><strong>Discussion</strong></p>
 <p>My models all produced nearly identical values across the board except for the peak ages of the female models, the period of significant increase for the males only collagen model, and all of the periods of significant decrease. I’m not sure whether the inconsistent results were because I did something wrong, we used different versions of R and packages, or the fact that I have a silicon chip with a Windows OS. At one point the period of increase for the male only collagen model was being calculated correctly the the .1, but as I continued to work and re-run things my program stopped recognizing it. The same goes for the period of decrease associated with the male only osteocalcin model.</p>
 <p>I don’t believe it’s an issue with my models or how I implemented the Box-Cox transformation for three reasons:</p>
 <ol type="1">
