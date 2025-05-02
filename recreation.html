@@ -150,6 +150,12 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="statistical-analysis-methods">Statistical Analysis Methods</h3>
 <p>The authors used generalized additive models (GAMs) with cubic regression splines to model the concentration of each biomarker as a smooth function of age for both sexes together, only males, and only females for a total of 6 GAMs (2 biomarkers, 3 models each). They then used derivative analysis to identify the ages with the maximum predicted values for bone turnover, which they interpret as supporting evidence for a juvenile growth spurt. Similarly, they used segmented linear regressions to confirm distinct, age-related patterns in bone metabolism and were able to align their findings with the three stages of chimpanzee life history (infant, juvenile, adult).</p>
 <p>I intend to replicate all 6 models used in the author’s analysis and attempt to replicate the figures presented in the results section of their paper.</p>
+</section>
+</section>
+<section id="replication" class="level2">
+<h2 class="anchored" data-anchor-id="replication">Replication</h2>
+<section id="setting-up" class="level3">
+<h3 class="anchored" data-anchor-id="setting-up">Setting up</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"https://raw.githubusercontent.com/bygentry/AN588_DataAnalysisRecreation_gentrym1/refs/heads/main/scripts/steup.R"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(collag1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -186,6 +192,11 @@ window.Quarto = {
 <li>relevant variables are extracted</li>
 <li><code>NA</code> values are omitted from the data sets.</li>
 </ol>
+</section>
+<section id="data-wrangling" class="level3">
+<h3 class="anchored" data-anchor-id="data-wrangling">Data Wrangling</h3>
+<section id="averaging" class="level4">
+<h4 class="anchored" data-anchor-id="averaging">Averaging</h4>
 <p>Let’s take the averages for each individual</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>coll_data <span class="ot">&lt;-</span> collag1 <span class="sc">%&gt;%</span></span>
@@ -208,7 +219,7 @@ window.Quarto = {
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">sex =</span> <span class="fu">first</span>(Sex)</span>
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Let’s make some pointers for easier calls throughout this analysis:</p>
+<p>and make some pointers for easier calls throughout this analysis:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>c_con <span class="ot">&lt;-</span> coll_data<span class="sc">$</span>mean_con</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>c_age <span class="ot">&lt;-</span> coll_data<span class="sc">$</span>mean_age</span>
@@ -216,6 +227,9 @@ window.Quarto = {
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>o_con <span class="ot">&lt;-</span> ostc_data<span class="sc">$</span>mean_con</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>o_age <span class="ot">&lt;-</span> ostc_data<span class="sc">$</span>mean_age</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="box-cox-transformation" class="level4">
+<h4 class="anchored" data-anchor-id="box-cox-transformation">Box-Cox Transformation</h4>
 <p>We then apply a Box-Cox transformation to the biomarker concentration data to ensure we meet the assumptions of generalized additive modelling (GAM) and segmented regression (SR) and increase our confidence in the models:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a plot grid to present the boxcox results side-by-side</span></span>
@@ -246,7 +260,7 @@ window.Quarto = {
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">boxcox</span>(<span class="fu">lm</span>(o_con <span class="sc">~</span> o_age))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>lambda_oc <span class="ot">&lt;-</span> b<span class="sc">$</span>x[<span class="fu">which.max</span>(b<span class="sc">$</span>y)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Both our <span class="math inline">\(\lambda\)</span> values are above 0, which we can verify as such</p>
+<p>Both our <span class="math inline">\(\lambda\)</span> values are above 0, which we can verify</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Collagen Lambda: 0.18182"</code></pre>
@@ -261,6 +275,12 @@ window.Quarto = {
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>coll_data<span class="sc">$</span>c_conT <span class="ot">&lt;-</span> (c_con<span class="sc">^</span>lambda_c <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> lambda_c</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>ostc_data<span class="sc">$</span>o_conT <span class="ot">&lt;-</span> (o_con<span class="sc">^</span>lambda_oc <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> lambda_oc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+</section>
+<section id="generating-models" class="level3">
+<h3 class="anchored" data-anchor-id="generating-models">Generating Models</h3>
+<section id="generalized-additive-models-gams" class="level4">
+<h4 class="anchored" data-anchor-id="generalized-additive-models-gams">Generalized Additive Models (GAMs)</h4>
 <p>Now that our data is transformed, we can create GAMs using the <code>gam()</code> function from the <code>mgcv</code> package.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># both sexes</span></span>
@@ -331,22 +351,26 @@ OsteocalcinF  numeric,0</code></pre>
 </div>
 <p>I could not for the life of me get a nonzero value for the two female models. As far as I can tell, this comes from the behavior of the <code>gratia</code> package. I think the problem is either caused by derivative being too flat at the inflection point such that when <code>gratia</code> smooths, it misses the inflection point OR the confidence interval of the derivative overlaps with 0. I suppose the sample size could also be playing a role, but long story short I couldn’t get it to recognize either of the inflection points seen in the visualizations of the female models. When inspecting the derivatives, the inflection point for cgam_f can be seen between dts$.derivative[73] and dts$.derivative[74] at very small decimal values which supports my idea that the <code>gratia</code> package is smoothing over the inflection point.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">70</span><span class="sc">:</span><span class="dv">80</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(cgam_f, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">70</span><span class="sc">:</span><span class="dv">80</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>         70          71          72          73          74          75 
-0.002318535 0.003289552 0.004227653 0.005132838 0.006005108 0.006844460 
-         76          77          78          79          80 
-0.007650898 0.008424419 0.009165025 0.009872713 0.010547488 </code></pre>
+<pre><code>           70            71            72            73            74 
+-3.051611e-03 -2.245530e-03 -1.466773e-03 -7.153421e-04  8.766906e-06 
+           75            76            77            78            79 
+ 7.055492e-04  1.375005e-03  2.017139e-03  2.631947e-03  3.219429e-03 
+           80 
+ 3.779586e-03 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">73</span><span class="sc">:</span><span class="dv">74</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>         73          74 
-0.005132838 0.006005108 </code></pre>
+<pre><code>           73            74 
+-7.153421e-04  8.766906e-06 </code></pre>
 </div>
 </div>
 <p>And the same can be seen in ogam_f at derivative indices 67-68:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">64</span><span class="sc">:</span><span class="dv">74</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(ogam_f, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">64</span><span class="sc">:</span><span class="dv">74</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           64            65            66            67            68 
 -0.0041987946 -0.0030302833 -0.0018946899 -0.0007920095  0.0002777559 
@@ -362,6 +386,9 @@ OsteocalcinF  numeric,0</code></pre>
 </div>
 </div>
 <p>I include a range of 10 values around the inflection point to demonstrate that it is not an instantaneous change in sign and represents a true inflection point.</p>
+</section>
+<section id="segmented-regressions" class="level4">
+<h4 class="anchored" data-anchor-id="segmented-regressions">Segmented Regressions</h4>
 <p>Moving on, let’s make our segmented regressions</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># both sexes</span></span>
@@ -376,6 +403,9 @@ OsteocalcinF  numeric,0</code></pre>
 <span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>csr_f <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(c_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> <span class="fu">filter</span>(coll_data, sex <span class="sc">==</span> <span class="st">"Female"</span>)), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
 <span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>osr_f <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(o_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> <span class="fu">filter</span>(ostc_data, sex <span class="sc">==</span> <span class="st">"Female"</span>)), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="checking-our-models" class="level4">
+<h4 class="anchored" data-anchor-id="checking-our-models">Checking our Models</h4>
 <p>and let’s go ahead and run our checks for both types of model</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># these outputs are crazy long and frankly not that relevant to this assignment, so i turned eval to false for this chunk.</span></span>
@@ -386,6 +416,12 @@ OsteocalcinF  numeric,0</code></pre>
 <span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(csr_mf, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(csr_m, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(csr_f, <span class="at">level =</span> .<span class="dv">95</span>)</span>
 <span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(osr_mf, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(osr_m, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(osr_f, <span class="at">level =</span> .<span class="dv">95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+</section>
+<section id="plotting-our-results" class="level3">
+<h3 class="anchored" data-anchor-id="plotting-our-results">Plotting our Results</h3>
+<section id="results-for-both-sexes" class="level4">
+<h4 class="anchored" data-anchor-id="results-for-both-sexes">Results for Both Sexes</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GAMs</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -470,6 +506,9 @@ OsteocalcinF  numeric,0</code></pre>
 </div>
 </div>
 </div>
+</section>
+<section id="results-for-males-only" class="level4">
+<h4 class="anchored" data-anchor-id="results-for-males-only">Results for Males Only</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GAMs</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(cgam_m, <span class="at">data =</span> coll_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
@@ -500,6 +539,9 @@ OsteocalcinF  numeric,0</code></pre>
 <span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(p.cgm, p.ogm, p.csm, p.osm,<span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="results-for-females-only" class="level4">
+<h4 class="anchored" data-anchor-id="results-for-females-only">Results for Females Only</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GAMs</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(cgam_f, <span class="at">data =</span> coll_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
@@ -530,6 +572,7 @@ OsteocalcinF  numeric,0</code></pre>
 <span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(p.cgm, p.ogm, p.csm, p.osm,<span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
 </section>
 </section>
 </section>

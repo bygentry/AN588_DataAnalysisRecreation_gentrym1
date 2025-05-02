@@ -238,6 +238,7 @@ as.matrix(peak_ages)
 I could not for the life of me get a nonzero value for the two female models. As far as I can tell, this comes from the behavior of the `gratia` package. I think the problem is either caused by derivative being too flat at the inflection point such that when `gratia` smooths, it misses the inflection point OR the confidence interval of the derivative overlaps with 0. I suppose the sample size could also be playing a role, but long story short I couldn't get it to recognize either of the inflection points seen in the visualizations of the female models. When inspecting the derivatives, the inflection point for cgam_f can be seen between dts\$.derivative\[73\] and dts\$.derivative\[74\] at very small decimal values which supports my idea that the `gratia` package is smoothing over the inflection point.
 
 ```{r}
+dts <- derivatives(cgam_f, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
 print(with(dts, .derivative)[70:80])
 print(with(dts, .derivative)[73:74])
 ```
@@ -245,6 +246,7 @@ print(with(dts, .derivative)[73:74])
 And the same can be seen in ogam_f at derivative indices 67-68:
 
 ```{r}
+dts <- derivatives(ogam_f, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
 print(with(dts, .derivative)[64:74])
 print(with(dts, .derivative)[67:68])
 ```
