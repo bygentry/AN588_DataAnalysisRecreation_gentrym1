@@ -21,6 +21,9 @@ library("JWileymisc")
 library("multilevelTools")
 library("tidyverse")
 
+# adding ggpubr because idk how they made the plot grids without it
+library("ggpubr")
+
 #Import datasets
 collag <- read.csv("https://github.com/bygentry/AN588_DataAnalysisRecreation_gentrym1/raw/refs/heads/main/Resources/Ngogo-collagen.csv")
 osteoc <- read.csv("https://github.com/bygentry/AN588_DataAnalysisRecreation_gentrym1/raw/refs/heads/main/Resources/Ngogo-osteocalcin.csv")

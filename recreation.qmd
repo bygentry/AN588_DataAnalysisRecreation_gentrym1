@@ -126,7 +126,7 @@ Since $\lambda$ is greater than 0, we use the formula `(y^lambda - 1) / lambda`
 
 # apply the transformation
 coll_data$c_conT <- (c_con^lambda_c - 1) / lambda_c
-coll_data$o_conT <- (o_con^lambda_oc - 1) / lambda_oc
+ostc_data$o_conT <- (o_con^lambda_oc - 1) / lambda_oc
 ```
 
 Now that our data is transformed, we can create GAMs using the `gam()` function from the `mgcv` package.
@@ -151,20 +151,34 @@ ogam_f <- gam(o_conT ~ s(mean_age, bs = "cr"), method = "REML", data = filter(os
 ```
 
 ```{r}
-#ggplot(collag1, aes(x = sampleAge, y = c_conT))
-#draw(cgam_mf, ci_level = 0.95)
+#| label: making plots
 
 # Add fitted values + 95% CI to your data
-fitted_df <- fitted_values(cgam_mf, data = collag1, include_data = TRUE, scale = "response")
+fitted_df <- fitted_values(cgam_mf, data = coll_data, include_data = TRUE, scale = "response")
 
-ggplot(fitted_df, aes(x = sampleAge, y = .fitted)) +
-  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.4) +
-  geom_line(color = "blue", size = 1.2) +
+p.cmf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
+  geom_line(color = "blue", linewidth = 1.2) +
   geom_point(aes(y = c_conT), color = "gray50", alpha = 0.5, size = 1) +
   labs(
     x = "Age",
     y = "Collagen concentration (nM, SG-corrected)",
     title = "GAM Fit with 95% CI"
   ) +
-  theme_minimal()
+  theme_bw()
+
+fitted_df <- fitted_values(ogam_mf, data = ostc_data, include_data = TRUE, scale = "response")
+
+p.omf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
+  geom_line(color = "blue", linewidth = 1.2) +
+  geom_point(aes(y = o_conT), color = "gray50", alpha = 0.5, size = 1) +
+  labs(
+    x = "Age",
+    y = "Osteocalcin concentration (nM, SG-corrected)",
+    title = "GAM Fit with 95% CI"
+  ) +
+  theme_bw()
+
+ggarrange(p.cmf, p.omf, nrow = 1, ncol = 2)
 ```
