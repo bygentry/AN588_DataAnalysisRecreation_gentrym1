@@ -30,7 +30,16 @@ The authors used generalized additive models (GAMs) with cubic regression spline
 
 I intend to replicate all 6 models used in the author's analysis and attempt to replicate the figures presented in the results section of their paper.
 
-```{r setup, include=FALSEecho=true, warning=false, comment="##", prompt=true, tidy=true, tidy.opts=list(width.cutoff=75), fig.path="img/"}
+## Replication
+
+### Setting up
+
+```{r}
+#| label: setup
+#| echo: true
+#| warning: false
+#| prompt: true
+#| fig.path: "img/"
 ```
 
 ```{r}
@@ -52,6 +61,10 @@ Using our setup script, we load the necessary packages and data before prepping 
 4.  continuous variables are standardized using Z-transformation
 5.  relevant variables are extracted
 6.  `NA` values are omitted from the data sets.
+
+### Data Wrangling
+
+#### Averaging
 
 Let's take the averages for each individual
 
@@ -79,7 +92,7 @@ ostc_data <- osteoc1 %>%
   )
 ```
 
-Let's make some pointers for easier calls throughout this analysis:
+and make some pointers for easier calls throughout this analysis:
 
 ```{r}
 #| label: Creating Pointers
@@ -92,6 +105,8 @@ c_age <- coll_data$mean_age
 o_con <- ostc_data$mean_con
 o_age <- ostc_data$mean_age
 ```
+
+#### Box-Cox Transformation
 
 We then apply a Box-Cox transformation to the biomarker concentration data to ensure we meet the assumptions of generalized additive modelling (GAM) and segmented regression (SR) and increase our confidence in the models:
 
@@ -128,7 +143,7 @@ b <- boxcox(lm(o_con ~ o_age))
 lambda_oc <- b$x[which.max(b$y)]
 ```
 
-Both our $\lambda$ values are above 0, which we can verify as such
+Both our $\lambda$ values are above 0, which we can verify
 
 ```{r}
 #| label: Box-Cox - Checking Lambda
@@ -148,6 +163,10 @@ Since $\lambda$ is greater than 0, we use the formula `(y^lambda - 1) / lambda`
 coll_data$c_conT <- (c_con^lambda_c - 1) / lambda_c
 ostc_data$o_conT <- (o_con^lambda_oc - 1) / lambda_oc
 ```
+
+### Generating Models
+
+#### Generalized Additive Models (GAMs)
 
 Now that our data is transformed, we can create GAMs using the `gam()` function from the `mgcv` package.
 
@@ -232,7 +251,9 @@ print(with(dts, .derivative)[67:68])
 
 I include a range of 10 values around the inflection point to demonstrate that it is not an instantaneous change in sign and represents a true inflection point.
 
-Now we can make our segmented regressions
+#### Segmented Regressions
+
+Moving on, let's make our segmented regressions
 
 ```{r}
 #| label: segmented linear regressions
@@ -250,74 +271,175 @@ csr_f <- segmented(lm(c_conT ~ mean_age, data = filter(coll_data, sex == "Female
 osr_f <- segmented(lm(o_conT ~ mean_age, data = filter(ostc_data, sex == "Female")), seg.Z = ~mean_age, npsi = 3)
 ```
 
+#### Checking our Models
+
 and let's go ahead and run our checks for both types of model
 
 ```{r}
 #| label: checking models
+#| eval: false
+#| echo: true
 
-gams <- list(cgam_mf, cgam_m, cgam_f, ogam_mf, ogam_m, ogam_f)
-srs <- list(csr_mf, csr_m, csr_f, osr_mf, osr_m, osr_f)
-for(i in 1:length(gams)){
-  gam.check(gams[i])
-}
+# these outputs are crazy long and frankly not that relevant to this assignment, so i turned eval to false for this chunk.
 
+gam.check(cgam_mf, level = .95);gam.check(cgam_m, level = .95);gam.check(cgam_f, level = .95)
+gam.check(ogam_mf, level = .95);gam.check(ogam_m, level = .95);gam.check(cgam_f, level = .95)
+
+shapiro.test(csr_mf, level = .95);shapiro.test(csr_m, level = .95);shapiro.test(csr_f, level = .95)
+shapiro.test(osr_mf, level = .95);shapiro.test(osr_m, level = .95);shapiro.test(osr_f, level = .95)
 ```
+
+### Plotting our Results
+
+#### Results for Both Sexes
 
 ```{r}
 #| label: making plots - both sexes
 
-# Add fitted values + 95% CI to your data
+# GAMs
+
+# create a dataframe of values fitted to the model
 fitted_df <- fitted_values(cgam_mf, data = coll_data, include_data = TRUE, scale = "response")
 
-p.cmf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
+p.cgmf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
+  geom_line(color = "blue4", linewidth = 1.2) +
+  geom_point(aes(y = c_conT), alpha = 0.5, size = 1) +
+  labs(
+    x = "Age (Years)",
+    y = "Collagen (nM, SG-corrected)"
+  ) +
+  theme(
+    axis.title = element_text(size = 6),
+    axis.text = element_text(size = 4)
+  ) +
+  theme_bw()
+
+fitted_df <- fitted_values(ogam_mf, data = ostc_data, include_data = TRUE, scale = "response")
+
+p.ogmf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
+  geom_line(color = "blue4", linewidth = 1.2) +
+  geom_point(aes(y = o_conT), alpha = 0.5, size = 1) +
+  labs(
+    x = "Age (Years)",
+    y = "Osteocalcin (ng/mL, SG-corrected)"
+  ) +
+  theme(
+    axis.title = element_text(size = 6),
+    axis.text = element_text(size = 4)
+  ) +
+  theme_bw()
+
+# SRs
+
+# generate prediction data
+newdata <- data.frame(mean_age = seq(min(coll_data$mean_age),
+                                     max(coll_data$mean_age),
+                                     length.out = 1000))
+b <- predict(csr_mf, newdata = newdata, interval = "confidence")
+preds <- cbind(newdata, as.data.frame(b))
+
+p.csmf <- ggplot(coll_data, aes(x = mean_age, y = c_conT)) +
+  geom_line(data = preds, aes(y = fit), color = "red3", linewidth = 1.2) +
+  geom_point(alpha = 0.5, size = 1) +
+  labs(
+    x = "Age (Years)",
+    y = "Collagen (nM, SG-corrected)",
+  ) +
+  theme(
+    axis.title = element_text(size = 6),
+    axis.text = element_text(size = 4)
+  ) +
+  theme_bw()
+
+b <- predict(osr_mf, newdata = newdata, interval = "confidence")
+preds <- cbind(newdata, as.data.frame(b))
+
+p.osmf <- ggplot(fitted_df, aes(x = mean_age, y = o_conT)) +
+  geom_line(data = preds, aes(y = fit), color = "red3", linewidth = 1.2) +
+  geom_point(alpha = 0.5, size = 1) +
+  labs(
+    x = "Age",
+    y = "Osteocalcin (ng/mL, SG-corrected)",
+  ) +
+  theme(
+    axis.title = element_text(size = 6),
+    axis.text = element_text(size = 4)
+  ) +
+  theme_bw()
+
+
+ggarrange(p.cgmf, p.ogmf, p.csmf, p.osmf, nrow = 2, ncol = 2)
+```
+
+#### Results for Males Only
+
+```{r}
+#| label: making plots - males only
+#| eval: false
+# GAMs
+fitted_df <- fitted_values(cgam_m, data = coll_data, include_data = TRUE, scale = "response")
+
+p.cgm <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
   geom_line(color = "blue", linewidth = 1.2) +
-  geom_point(aes(y = c_conT), color = "gray", alpha = 0.5, size = 1) +
+  geom_point(aes(y = c_conT), alpha = 0.5, size = 1) +
   labs(
     x = "Age",
     y = "Collagen concentration (nM, SG-corrected)",
     title = "GAM Fit with 95% CI"
   ) +
- # coord_fixed(ratio = 4/3) +
   theme_bw()
 
-fitted_df <- fitted_values(ogam_mf, data = ostc_data, include_data = TRUE, scale = "response")
+fitted_df <- fitted_values(ogam_m, data = ostc_data, include_data = TRUE, scale = "response")
 
-p.omf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
+p.ogm <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
   geom_line(color = "blue", linewidth = 1.2) +
-  geom_point(aes(y = o_conT), color = "gray50", alpha = 0.5, size = 1) +
+  geom_point(aes(y = o_conT), alpha = 0.5, size = 1) +
   labs(
     x = "Age",
-    y = "Osteocalcin concentration (nM, SG-corrected)",
+    y = "Osteocalcin concentration (ng/mL, SG-corrected)",
     title = "GAM Fit with 95% CI"
   ) +
-  #coord_fixed(ratio = 1) +
   theme_bw()
 
-ggarrange(p.cmf, p.omf, nrow = 1, ncol = 2)
+ggarrange(p.cgm, p.ogm, p.csm, p.osm,nrow = 2, ncol = 2)
+
 ```
 
-```{r}
-#| label: making plots - males only
-```
+#### Results for Females Only
 
 ```{r}
 #| label: making plots - females only
-
+#| eval: false
+# GAMs
 fitted_df <- fitted_values(cgam_f, data = coll_data, include_data = TRUE, scale = "response")
 
-p.cf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
+p.cgf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
   geom_line(color = "blue", linewidth = 1.2) +
-  geom_point(aes(y = c_conT), color = "gray", alpha = 0.5, size = 1) +
+  geom_point(aes(y = c_conT), alpha = 0.5, size = 1) +
   labs(
     x = "Age",
     y = "Collagen concentration (nM, SG-corrected)",
     title = "GAM Fit with 95% CI, Females"
   ) +
- # coord_fixed(ratio = 4/3) +
   theme_bw()
 
+fitted_df <- fitted_values(ogam_f, data = ostc_data, include_data = TRUE, scale = "response")
 
+p.ogf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
+  geom_line(color = "blue", linewidth = 1.2) +
+  geom_point(aes(y = o_conT), alpha = 0.5, size = 1) +
+  labs(
+    x = "Age",
+    y = "Osteocalcin concentration (ng/mL, SG-corrected)",
+    title = "GAM Fit with 95% CI"
+  ) +
+  theme_bw()
+
+ggarrange(p.cgm, p.ogm, p.csm, p.osm,nrow = 2, ncol = 2)
 ```
