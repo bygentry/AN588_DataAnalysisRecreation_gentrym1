@@ -12,6 +12,24 @@ editor: visual
 
 **Aaron A. Sandel, Jacob D. Negrey, Milja Arponen, Isabelle R. Clark, Jeremy B. Clift, Rachna B. Reddy, Kaisa K. Ivaska**
 
+## Summary
+
+Sandel et al. (2023) investigate how collagen-type 1 cross-linked N-telopeptides (CTX) and osteocalcin vary with age to approximate bone turnover rates throughout a wild chimpanzee's (*Pan troglodytes*) life history. Using urine samples from individuals with known ages, they asses developmental and aging patterns in skeletal metabolism. They found that chimpanzees exhibit sex-specific aging trajectories, with males and females showing different ages of peak turnover rates which reflects differences in growth and aging that are consistent with current hypotheses about the evolution of primate life history.
+
+### Goals
+
+Their specific goal was to quantify age and sex related patterns of bone turnover through urinary biomarker assays. After collecting their data and performing analysis with generalized additive models, they cast out sex as a predictor because it "exhibited minimal effect on either collagen or osteocalcin levels" (Sandel et al. 2023, p. 4-5).
+
+### Data Breakdown
+
+The data consist of two separate .csv files - one for each biomarker. The variables are mostly the same between the two data sets. The variables containing information about the chimpanzee include the individual's ID (name), their sex, the age at which each sample was collected, and the individual's date of birth. The sample-related variables include a unique ID for each sample from each individual, the date and time of collection, the researcher who collected the sample, the substrate from which the sample was collected, creatinine level, specific gravity, and the concentration of the relevant biomarker in both nM and ng/ml.
+
+### Statistical Analysis Methods
+
+The authors used generalized additive models (GAMs) with cubic regression splines to model the concentration of each biomarker as a smooth function of age for both sexes together, only males, and only females for a total of 6 GAMs (2 biomarkers, 3 models each). They then used derivative analysis to identify the ages with the maximum predicted values for bone turnover, which they interpret as supporting evidence for a juvenile growth spurt. Similarly, they used segmented linear regressions to confirm distinct, age-related patterns in bone metabolism and were able to align their findings with the three stages of chimpanzee life history (infant, juvenile, adult).
+
+I intend to replicate all 6 models used in the author's analysis and attempt to replicate the figures presented in the results section of their paper.
+
 ```{r setup, include=FALSEecho=true, warning=false, comment="##", prompt=true, tidy=true, tidy.opts=list(width.cutoff=75), fig.path="img/"}
 ```
 
@@ -22,6 +40,8 @@ editor: visual
 #| warning: false
 
 source("https://raw.githubusercontent.com/bygentry/AN588_DataAnalysisRecreation_gentrym1/refs/heads/main/scripts/steup.R")
+head(collag1)
+head(osteoc1)
 ```
 
 Using our setup script, we load the necessary packages and data before prepping the data for analysis. To prepare the data and maintain consistency with the original analysis,
