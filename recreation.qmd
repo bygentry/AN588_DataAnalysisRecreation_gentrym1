@@ -638,7 +638,7 @@ Generating Table:
 #| label: generating table
 #| code-fold: true
 
-full_summary <- pmap_dfr(inputs, function(model, table_name, model.name){
+gam_summary <- pmap_dfr(inputs, function(model, table_name, model.name){
   s <- summary(model)
   peak <- peak_ages[[model.name]]
   b <- period_list %>%
@@ -652,7 +652,7 @@ full_summary <- pmap_dfr(inputs, function(model, table_name, model.name){
     N = nrow(model$model),
     EDF = round(s$s.table[1, "edf"], 2),
     Ref.DF = round(s$s.table[1, "Ref.df"], 2),
-    .F = round(s$s.table[1, "F"], 2),
+    .F = round(s$s.table[1, "F"], 1),
     p.value = p.check(s),
     Peak.Age = round(peak, 2),
     Sig.Increase = NA,
@@ -660,11 +660,48 @@ full_summary <- pmap_dfr(inputs, function(model, table_name, model.name){
   )
 })
 
-full_summary
+gam_summary
 ```
 
 #### Sandel et al. Table 1
 
 ![](img/table1.png)
 
-M
+My models all produced nearly identical values across the board except for the peak ages of the female models, the period of significant increase for the males only collagen model, and all of the periods of significant decrease. I'm not sure whether the inconsistent results were because I did something wrong, we used different versions of R and packages, or the fact that I have a silicon chip with a Windows OS. At one point the period of increase for the male only collagen model was being calculated correctly the the .1, but as I continued to work and re-run things my program stopped recognizing it. The same goes for the period of decrease associated with the male only osteocalcin model.
+
+I don't believe it's an issue with my models or how I implemented the Box-Cox transformation for three reasons:
+
+1.  All of the values except for the periods of significant change are extremely close to those found by Sandel's team
+2.  The values for the periods of change were initially much closer to Sandel et al.'s
+3.  The period of increase was initially recognized but somewhere down the line the derivative function stopped identifying significant values in the appropriate (or any) range
+
+Anyways, let's compare the segmented regressions now.
+
+Housekeeping:
+
+```{r}
+#| code-fold: true
+models <- list(csr_mf, csr_m, csr_f, osr_mf, osr_m, osr_f)
+names(models) <- c("csr_mf", "csr_m", "csr_f", "osr_mf", "osr_m", "osr_f")
+inputs <- list(models, table_names)
+```
+
+```{r}
+#| label: making table 2
+#| code-fold: true
+slr_summary <- pmap_dfr(inputs, function(m, table_name){
+  tibble(
+    Model = table_name,
+    N = nrow(m$model),
+    Breakpoint1 = round(m$psi[1,2], 1),
+    Breakpoint2 = round(m$psi[2,2], 1),
+    Breakpoint3 = round(m$psi[3,2], 1)
+    )
+  }
+)
+slr_summary
+```
+
+![These tables are also very close. It looks like my model identified a breakpoint (bp) for the collagen female only model at 4.3 that Sandel's teams model didn't, so my bp2 is their bp1 and my bp3 is their bp2 while their bp3 is **`NA`** .](img/table2.png)
+
+Overall, I think I did a pretty good job replicating their analysis but I'm curious why the female only models behaved so strangely for me.
