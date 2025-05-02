@@ -297,7 +297,7 @@ shapiro.test(osr_mf, level = .95);shapiro.test(osr_m, level = .95);shapiro.test(
 
 ```{r}
 #| label: making plots - both sexes
-
+#| code-fold: true
 # GAMs
 
 # create a dataframe of values fitted to the model
@@ -309,7 +309,8 @@ p.cgmf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   geom_point(aes(y = c_conT), alpha = 0.5, size = 1) +
   labs(
     x = "Age (Years)",
-    y = "Collagen (nM, SG-corrected)"
+    y = "Collagen (nM, SG-corrected)",
+    title = "GAM Fit with 95% CI"
   ) +
   theme(
     axis.title = element_text(size = 6),
@@ -325,7 +326,8 @@ p.ogmf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   geom_point(aes(y = o_conT), alpha = 0.5, size = 1) +
   labs(
     x = "Age (Years)",
-    y = "Osteocalcin (ng/mL, SG-corrected)"
+    y = "Osteocalcin (ng/mL, SG-corrected)",
+    title = "GAM Fit with 95% CI"
   ) +
   theme(
     axis.title = element_text(size = 6),
@@ -348,6 +350,7 @@ p.csmf <- ggplot(coll_data, aes(x = mean_age, y = c_conT)) +
   labs(
     x = "Age (Years)",
     y = "Collagen (nM, SG-corrected)",
+    title = "SR Fit"
   ) +
   theme(
     axis.title = element_text(size = 6),
@@ -364,6 +367,7 @@ p.osmf <- ggplot(fitted_df, aes(x = mean_age, y = o_conT)) +
   labs(
     x = "Age",
     y = "Osteocalcin (ng/mL, SG-corrected)",
+    title = "SR Fit"
   ) +
   theme(
     axis.title = element_text(size = 6),
@@ -379,17 +383,17 @@ ggarrange(p.cgmf, p.ogmf, p.csmf, p.osmf, nrow = 2, ncol = 2)
 
 ```{r}
 #| label: making plots - males only
-#| eval: false
+#| code-fold: true
 # GAMs
 fitted_df <- fitted_values(cgam_m, data = coll_data, include_data = TRUE, scale = "response")
 
 p.cgm <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
-  geom_line(color = "blue", linewidth = 1.2) +
+  geom_line(color = "blue4", linewidth = 1.2) +
   geom_point(aes(y = c_conT), alpha = 0.5, size = 1) +
   labs(
     x = "Age",
-    y = "Collagen concentration (nM, SG-corrected)",
+    y = "Collagen (nM, SG-corrected)",
     title = "GAM Fit with 95% CI"
   ) +
   theme_bw()
@@ -398,24 +402,57 @@ fitted_df <- fitted_values(ogam_m, data = ostc_data, include_data = TRUE, scale 
 
 p.ogm <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
-  geom_line(color = "blue", linewidth = 1.2) +
+  geom_line(color = "blue4", linewidth = 1.2) +
   geom_point(aes(y = o_conT), alpha = 0.5, size = 1) +
   labs(
     x = "Age",
-    y = "Osteocalcin concentration (ng/mL, SG-corrected)",
+    y = "Osteocalcin (ng/mL, SG-corrected)",
     title = "GAM Fit with 95% CI"
   ) +
   theme_bw()
 
-ggarrange(p.cgm, p.ogm, p.csm, p.osm,nrow = 2, ncol = 2)
+b <- predict(csr_m, newdata = newdata, interval = "confidence")
+preds <- cbind(newdata, as.data.frame(b))
 
+p.csm <- ggplot(coll_data, aes(x = mean_age, y = c_conT)) +
+  geom_line(data = preds, aes(y = fit), color = "red3", linewidth = 1.2) +
+  geom_point(alpha = 0.5, size = 1) +
+  labs(
+    x = "Age (Years)",
+    y = "Collagen (nM, SG-corrected)",
+    title = "SR Fit"
+  ) +
+  theme(
+    axis.title = element_text(size = 6),
+    axis.text = element_text(size = 4)
+  ) +
+  theme_bw()
+
+b <- predict(osr_m, newdata = newdata, interval = "confidence")
+preds <- cbind(newdata, as.data.frame(b))
+
+p.osm <- ggplot(fitted_df, aes(x = mean_age, y = o_conT)) +
+  geom_line(data = preds, aes(y = fit), color = "red3", linewidth = 1.2) +
+  geom_point(alpha = 0.5, size = 1) +
+  labs(
+    x = "Age",
+    y = "Osteocalcin (ng/mL, SG-corrected)",
+    title = "SR Fit"
+  ) +
+  theme(
+    axis.title = element_text(size = 6),
+    axis.text = element_text(size = 4)
+  ) +
+  theme_bw()
+
+ggarrange(p.cgm, p.ogm, p.csm, p.osm,nrow = 2, ncol = 2)
 ```
 
 #### Results for Females Only
 
 ```{r}
 #| label: making plots - females only
-#| eval: false
+#| code-fold: true
 # GAMs
 fitted_df <- fitted_values(cgam_f, data = coll_data, include_data = TRUE, scale = "response")
 
@@ -425,7 +462,7 @@ p.cgf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   geom_point(aes(y = c_conT), alpha = 0.5, size = 1) +
   labs(
     x = "Age",
-    y = "Collagen concentration (nM, SG-corrected)",
+    y = "Collagen (nM, SG-corrected)",
     title = "GAM Fit with 95% CI, Females"
   ) +
   theme_bw()
@@ -438,10 +475,44 @@ p.ogf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   geom_point(aes(y = o_conT), alpha = 0.5, size = 1) +
   labs(
     x = "Age",
-    y = "Osteocalcin concentration (ng/mL, SG-corrected)",
+    y = "Osteocalcin (ng/mL, SG-corrected)",
     title = "GAM Fit with 95% CI"
   ) +
   theme_bw()
 
-ggarrange(p.cgm, p.ogm, p.csm, p.osm,nrow = 2, ncol = 2)
+b <- predict(csr_f, newdata = newdata, interval = "confidence")
+preds <- cbind(newdata, as.data.frame(b))
+
+p.csf <- ggplot(coll_data, aes(x = mean_age, y = c_conT)) +
+  geom_line(data = preds, aes(y = fit), color = "red3", linewidth = 1.2) +
+  geom_point(alpha = 0.5, size = 1) +
+  labs(
+    x = "Age (Years)",
+    y = "Collagen (nM, SG-corrected)",
+    title = "SR Fit"
+  ) +
+  theme(
+    axis.title = element_text(size = 6),
+    axis.text = element_text(size = 4)
+  ) +
+  theme_bw()
+
+b <- predict(osr_f, newdata = newdata, interval = "confidence")
+preds <- cbind(newdata, as.data.frame(b))
+
+p.osf <- ggplot(fitted_df, aes(x = mean_age, y = o_conT)) +
+  geom_line(data = preds, aes(y = fit), color = "red3", linewidth = 1.2) +
+  geom_point(alpha = 0.5, size = 1) +
+  labs(
+    x = "Age",
+    y = "Osteocalcin (ng/mL, SG-corrected)",
+    title = "SR Fit"
+  ) +
+  theme(
+    axis.title = element_text(size = 6),
+    axis.text = element_text(size = 4)
+  ) +
+  theme_bw()
+
+ggarrange(p.cgf, p.ogf, p.csf, p.osf, nrow = 2, ncol = 2)
 ```
