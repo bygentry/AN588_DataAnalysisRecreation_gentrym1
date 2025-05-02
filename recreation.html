@@ -108,11 +108,23 @@ window.Quarto = {
   <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Contents</h2>
    
-  <ul class="collapse">
+  <ul>
   <li><a href="#the-evolution-of-the-adolescent-growth-spurt-urinary-biomarkers-of-bone-turnover-in-wild-chimpanzees-pan-troglodytes" id="toc-the-evolution-of-the-adolescent-growth-spurt-urinary-biomarkers-of-bone-turnover-in-wild-chimpanzees-pan-troglodytes" class="nav-link active" data-scroll-target="#the-evolution-of-the-adolescent-growth-spurt-urinary-biomarkers-of-bone-turnover-in-wild-chimpanzees-pan-troglodytes">The evolution of the adolescent growth spurt: Urinary biomarkers of bone turnover in wild chimpanzees (<em>Pan troglodytes</em>)</a>
   <ul class="collapse">
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  <li><a href="#replication" id="toc-replication" class="nav-link" data-scroll-target="#replication">Replication</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a>
+  <ul class="collapse">
+  <li><a href="#goals" id="toc-goals" class="nav-link" data-scroll-target="#goals">Goals</a></li>
+  <li><a href="#data-breakdown" id="toc-data-breakdown" class="nav-link" data-scroll-target="#data-breakdown">Data Breakdown</a></li>
+  <li><a href="#statistical-analysis-methods" id="toc-statistical-analysis-methods" class="nav-link" data-scroll-target="#statistical-analysis-methods">Statistical Analysis Methods</a></li>
+  </ul></li>
+  <li><a href="#replication" id="toc-replication" class="nav-link" data-scroll-target="#replication">Replication</a>
+  <ul class="collapse">
+  <li><a href="#setting-up" id="toc-setting-up" class="nav-link" data-scroll-target="#setting-up">Setting up</a></li>
+  <li><a href="#data-wrangling" id="toc-data-wrangling" class="nav-link" data-scroll-target="#data-wrangling">Data Wrangling</a></li>
+  <li><a href="#generating-models" id="toc-generating-models" class="nav-link" data-scroll-target="#generating-models">Generating Models</a></li>
+  <li><a href="#plotting-our-results" id="toc-plotting-our-results" class="nav-link" data-scroll-target="#plotting-our-results">Plotting our Results</a></li>
+  <li><a href="#summarizing-results" id="toc-summarizing-results" class="nav-link" data-scroll-target="#summarizing-results">Summarizing Results</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -425,7 +437,7 @@ window.Quarto = {
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>peak_ages <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># starting with collagen</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># make a dataframe of the derivatives of cgam</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(cgam_mf, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(cgam_mf, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the inflection point (should be the peak of the model)</span></span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>inflect <span class="ot">&lt;-</span> <span class="fu">with</span>(dts, <span class="fu">which</span>(<span class="fu">diff</span>(<span class="fu">sign</span>(.derivative)) <span class="sc">==</span> <span class="sc">-</span><span class="dv">2</span>))</span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># add 1 because stack overflow said so</span></span>
@@ -468,8 +480,8 @@ window.Quarto = {
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
-<td style="text-align: right;">12.72909</td>
-<td style="text-align: right;">20.43091</td>
+<td style="text-align: right;">13.37091</td>
+<td style="text-align: right;">17.22182</td>
 </tr>
 </tbody>
 </table>
@@ -482,36 +494,36 @@ window.Quarto = {
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># now we repeat for all the other models</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># cgam_m</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(cgam_m, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(cgam_m, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># here, we have to use first() because there are multiple inflection points</span></span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>inflect <span class="ot">&lt;-</span> <span class="fu">first</span>(<span class="fu">with</span>(dts, <span class="fu">which</span>(<span class="fu">diff</span>(<span class="fu">sign</span>(.derivative)) <span class="sc">==</span> <span class="sc">-</span><span class="dv">2</span>)))</span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>peak_ages<span class="sc">$</span>CollagenM <span class="ot">&lt;-</span> dts<span class="sc">$</span>mean_age[inflect <span class="sc">+</span> <span class="dv">1</span>]</span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># cgam_f</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(cgam_f, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(cgam_f, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>inflect <span class="ot">&lt;-</span> <span class="fu">with</span>(dts, <span class="fu">which</span>(<span class="fu">diff</span>(<span class="fu">sign</span>(.derivative)) <span class="sc">==</span> <span class="sc">-</span><span class="dv">2</span>))</span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>peak_ages<span class="sc">$</span>CollagenF <span class="ot">&lt;-</span> dts<span class="sc">$</span>mean_age[inflect <span class="sc">+</span> <span class="dv">1</span>]</span>
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co"># ogam_mf</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(ogam_mf, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(ogam_mf, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co"># here, we have to use first() because there are multiple inflection points</span></span>
 <span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>inflect <span class="ot">&lt;-</span> <span class="fu">first</span>(<span class="fu">with</span>(dts, <span class="fu">which</span>(<span class="fu">diff</span>(<span class="fu">sign</span>(.derivative)) <span class="sc">==</span> <span class="sc">-</span><span class="dv">2</span>)))</span>
 <span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>peak_ages<span class="sc">$</span>OsteocalcinMF <span class="ot">&lt;-</span> dts<span class="sc">$</span>mean_age[inflect <span class="sc">+</span> <span class="dv">1</span>]</span>
 <span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="co"># ogam_m</span></span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(ogam_m, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(ogam_m, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="co"># here, we have to use first() because there are multiple inflection points</span></span>
 <span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>inflect <span class="ot">&lt;-</span> <span class="fu">first</span>(<span class="fu">with</span>(dts, <span class="fu">which</span>(<span class="fu">diff</span>(<span class="fu">sign</span>(.derivative)) <span class="sc">==</span> <span class="sc">-</span><span class="dv">2</span>)))</span>
 <span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>peak_ages<span class="sc">$</span>OsteocalcinM <span class="ot">&lt;-</span> dts<span class="sc">$</span>mean_age[inflect <span class="sc">+</span> <span class="dv">1</span>]</span>
 <span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="co"># ogam_f</span></span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(ogam_f, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(ogam_f, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>inflect <span class="ot">&lt;-</span> <span class="fu">with</span>(dts, <span class="fu">which</span>(<span class="fu">diff</span>(<span class="fu">sign</span>(.derivative)) <span class="sc">==</span> <span class="sc">-</span><span class="dv">2</span>))</span>
 <span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>peak_ages<span class="sc">$</span>OsteocalcinF <span class="ot">&lt;-</span> dts<span class="sc">$</span>mean_age[inflect <span class="sc">+</span> <span class="dv">1</span>]</span>
 <span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>models <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">cgam_mg =</span> cgam_mf, <span class="at">cgam_m =</span> cgam_m, <span class="at">cgam_f =</span> cgam_f, <span class="at">ogam_mf =</span> ogam_mf, <span class="at">ogam_m =</span> ogam_m, <span class="at">ogam_f =</span> ogam_f)</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>models <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">cgam_mf =</span> cgam_mf, <span class="at">cgam_m =</span> cgam_m, <span class="at">cgam_f =</span> cgam_f, <span class="at">ogam_mf =</span> ogam_mf, <span class="at">ogam_m =</span> ogam_m, <span class="at">ogam_f =</span> ogam_f)</span>
 <span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>period_list <span class="ot">&lt;-</span> <span class="fu">imap_dfr</span>(models, <span class="cf">function</span>(model, name){</span>
-<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>  dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(model, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>  dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(model, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
 <span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">sig =</span> <span class="fu">case_when</span>(</span>
 <span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>        .lower_ci <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"increasing"</span>,</span>
@@ -524,8 +536,19 @@ window.Quarto = {
 <span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(group, sig) <span class="sc">%&gt;%</span> </span>
 <span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">start =</span> <span class="fu">min</span>(mean_age), <span class="at">end =</span> <span class="fu">max</span>(mean_age), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> name)</span>
-<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>period_list</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 2 warnings in `summarise()`.
+The first warning was:
+ℹ In argument: `start = min(mean_age)`.
+Caused by warning in `min()`:
+! no non-missing arguments to min; returning Inf
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>period_list</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div class="kable-table">
@@ -543,50 +566,36 @@ window.Quarto = {
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
-<td style="text-align: right;">12.729091</td>
-<td style="text-align: right;">20.43091</td>
-<td style="text-align: left;">cgam_mg</td>
+<td style="text-align: right;">13.370909</td>
+<td style="text-align: right;">17.22182</td>
+<td style="text-align: left;">cgam_mf</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">increasing</td>
-<td style="text-align: right;">4.464108</td>
-<td style="text-align: right;">8.97335</td>
+<td style="text-align: left;">decreasing</td>
+<td style="text-align: right;">12.981566</td>
+<td style="text-align: right;">16.98978</td>
 <td style="text-align: left;">cgam_m</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">decreasing</td>
-<td style="text-align: right;">12.480539</td>
-<td style="text-align: right;">17.99183</td>
-<td style="text-align: left;">cgam_m</td>
-</tr>
-<tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
-<td style="text-align: right;">6.752424</td>
-<td style="text-align: right;">29.68697</td>
+<td style="text-align: right;">15.034343</td>
+<td style="text-align: right;">20.76798</td>
 <td style="text-align: left;">cgam_f</td>
 </tr>
-<tr class="odd">
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">decreasing</td>
-<td style="text-align: right;">10.803636</td>
-<td style="text-align: right;">44.17818</td>
-<td style="text-align: left;">ogam_mf</td>
-</tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
-<td style="text-align: right;">12.480539</td>
-<td style="text-align: right;">16.98978</td>
-<td style="text-align: left;">ogam_m</td>
+<td style="text-align: right;">12.729091</td>
+<td style="text-align: right;">35.19273</td>
+<td style="text-align: left;">ogam_mf</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
-<td style="text-align: right;">3.567071</td>
-<td style="text-align: right;">34.14646</td>
+<td style="text-align: right;">8.026566</td>
+<td style="text-align: right;">25.22747</td>
 <td style="text-align: left;">ogam_f</td>
 </tr>
 </tbody>
@@ -595,7 +604,14 @@ window.Quarto = {
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.matrix</span>(peak_ages)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"Don't forget the peak ages:"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Don't forget the peak ages:"</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.matrix</span>(peak_ages)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>              [,1]     
@@ -607,10 +623,10 @@ OsteocalcinM  9.474377
 OsteocalcinF  numeric,0</code></pre>
 </div>
 </div>
-<p>I could not for the life of me get a nonzero value for the two female models. As far as I can tell, this comes from the behavior of the <code>gratia</code> package. I think the problem is either caused by derivative being too flat at the inflection point such that when <code>gratia</code> smooths, it misses the inflection point OR the confidence interval of the derivative overlaps with 0. I suppose the sample size could also be playing a role, but long story short I couldn’t get it to recognize either of the inflection points seen in the visualizations of the female models. When inspecting the derivatives, the inflection point for cgam_f can be seen between dts$.derivative[73] and dts$.derivative[74] at very small decimal values which supports my idea that the <code>gratia</code> package is smoothing over the inflection point.</p>
+<p>I could not for the life of me get a nonzero value for the two female models. As far as I can tell, this comes from the behavior of the <code>gratia</code> package. I think the problem is either caused by derivative being too flat at the inflection point such that when <code>gratia</code> smooths, it misses the inflection point OR the confidence interval of the derivative overlaps with 0 at the inflection point. I suppose the sample size could also be playing a role, but long story short I couldn’t get it to recognize either of the inflection points seen in the visualizations of the female models. When inspecting the derivatives, the inflection point for cgam_f can be seen between dts$.derivative[73] and dts$.derivative[74] at very small decimal values which supports my idea that the <code>gratia</code> package is smoothing over the inflection point.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(cgam_f, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">70</span><span class="sc">:</span><span class="dv">80</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(cgam_f, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">70</span><span class="sc">:</span><span class="dv">80</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           70            71            72            73            74 
 -3.051611e-03 -2.245530e-03 -1.466773e-03 -7.153421e-04  8.766906e-06 
@@ -619,7 +635,7 @@ OsteocalcinF  numeric,0</code></pre>
            80 
  3.779586e-03 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">73</span><span class="sc">:</span><span class="dv">74</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">73</span><span class="sc">:</span><span class="dv">74</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           73            74 
 -7.153421e-04  8.766906e-06 </code></pre>
@@ -627,8 +643,8 @@ OsteocalcinF  numeric,0</code></pre>
 </div>
 <p>And the same can be seen in ogam_f at derivative indices 67-68:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(ogam_f, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"confidence"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">64</span><span class="sc">:</span><span class="dv">74</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(ogam_f, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">64</span><span class="sc">:</span><span class="dv">74</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           64            65            66            67            68 
 -0.0041987946 -0.0030302833 -0.0018946899 -0.0007920095  0.0002777559 
@@ -637,7 +653,7 @@ OsteocalcinF  numeric,0</code></pre>
            74 
  0.0060051076 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">67</span><span class="sc">:</span><span class="dv">68</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">with</span>(dts, .derivative)[<span class="dv">67</span><span class="sc">:</span><span class="dv">68</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           67            68 
 -0.0007920095  0.0002777559 </code></pre>
@@ -647,32 +663,32 @@ OsteocalcinF  numeric,0</code></pre>
 </section>
 <section id="segmented-regressions" class="level4">
 <h4 class="anchored" data-anchor-id="segmented-regressions">Segmented Regressions</h4>
-<p>Moving on, let’s make our segmented regressions</p>
+<p>Moving on, let’s make our segmented regressions using <code>segmented()</code> from the package <code>segmented</code> using linear models</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># both sexes</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>csr_mf <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(c_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> coll_data), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>osr_mf <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(o_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> ostc_data), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># males only</span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>csr_m <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(c_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> <span class="fu">filter</span>(coll_data, sex <span class="sc">==</span> <span class="st">"Male"</span>)), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>osr_m <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(o_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> <span class="fu">filter</span>(ostc_data, sex <span class="sc">==</span> <span class="st">"Male"</span>)), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co"># females only</span></span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>csr_f <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(c_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> <span class="fu">filter</span>(coll_data, sex <span class="sc">==</span> <span class="st">"Female"</span>)), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>osr_f <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(o_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> <span class="fu">filter</span>(ostc_data, sex <span class="sc">==</span> <span class="st">"Female"</span>)), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># both sexes</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>csr_mf <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(c_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> coll_data), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>osr_mf <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(o_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> ostc_data), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co"># males only</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>csr_m <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(c_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> <span class="fu">filter</span>(coll_data, sex <span class="sc">==</span> <span class="st">"Male"</span>)), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>osr_m <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(o_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> <span class="fu">filter</span>(ostc_data, sex <span class="sc">==</span> <span class="st">"Male"</span>)), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="co"># females only</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>csr_f <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(c_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> <span class="fu">filter</span>(coll_data, sex <span class="sc">==</span> <span class="st">"Female"</span>)), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>osr_f <span class="ot">&lt;-</span> <span class="fu">segmented</span>(<span class="fu">lm</span>(o_conT <span class="sc">~</span> mean_age, <span class="at">data =</span> <span class="fu">filter</span>(ostc_data, sex <span class="sc">==</span> <span class="st">"Female"</span>)), <span class="at">seg.Z =</span> <span class="sc">~</span>mean_age, <span class="at">npsi =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="checking-our-models" class="level4">
 <h4 class="anchored" data-anchor-id="checking-our-models">Checking our Models</h4>
 <p>and let’s go ahead and run our checks for both types of model</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># these outputs are crazy long and frankly not that relevant to this assignment, so i turned eval to false for this chunk.</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">gam.check</span>(cgam_mf, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">gam.check</span>(cgam_m, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">gam.check</span>(cgam_f, <span class="at">level =</span> .<span class="dv">95</span>)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">gam.check</span>(ogam_mf, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">gam.check</span>(ogam_m, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">gam.check</span>(cgam_f, <span class="at">level =</span> .<span class="dv">95</span>)</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(csr_mf, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(csr_m, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(csr_f, <span class="at">level =</span> .<span class="dv">95</span>)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(osr_mf, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(osr_m, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(osr_f, <span class="at">level =</span> .<span class="dv">95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># these outputs are crazy long and frankly not that relevant to this assignment, so i turned eval to false for this chunk.</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">gam.check</span>(cgam_mf, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">gam.check</span>(cgam_m, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">gam.check</span>(cgam_f, <span class="at">level =</span> .<span class="dv">95</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">gam.check</span>(ogam_mf, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">gam.check</span>(ogam_m, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">gam.check</span>(cgam_f, <span class="at">level =</span> .<span class="dv">95</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(csr_mf, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(csr_m, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(csr_f, <span class="at">level =</span> .<span class="dv">95</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(osr_mf, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(osr_m, <span class="at">level =</span> .<span class="dv">95</span>);<span class="fu">shapiro.test</span>(osr_f, <span class="at">level =</span> .<span class="dv">95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -683,85 +699,89 @@ OsteocalcinF  numeric,0</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GAMs</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># create a dataframe of values fitted to the model</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(cgam_mf, <span class="at">data =</span> coll_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>p.cgmf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue4"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> c_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (Years)"</span>,</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI"</span></span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(ogam_mf, <span class="at">data =</span> ostc_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>p.ogmf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
-<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue4"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> o_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (Years)"</span>,</span>
-<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
-<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI"</span></span>
-<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
-<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
-<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a><span class="co"># SRs</span></span>
-<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a><span class="co"># generate prediction data</span></span>
-<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">mean_age =</span> <span class="fu">seq</span>(<span class="fu">min</span>(coll_data<span class="sc">$</span>mean_age),</span>
-<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>                                     <span class="fu">max</span>(coll_data<span class="sc">$</span>mean_age),</span>
-<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">length.out =</span> <span class="dv">1000</span>))</span>
-<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(csr_mf, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
-<span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
-<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a>p.csmf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(coll_data, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> c_conT)) <span class="sc">+</span></span>
-<span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb27-50"><a href="#cb27-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb27-51"><a href="#cb27-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (Years)"</span>,</span>
-<span id="cb27-52"><a href="#cb27-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
-<span id="cb27-53"><a href="#cb27-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span></span>
-<span id="cb27-54"><a href="#cb27-54" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb27-55"><a href="#cb27-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb27-56"><a href="#cb27-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
-<span id="cb27-57"><a href="#cb27-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
-<span id="cb27-58"><a href="#cb27-58" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb27-59"><a href="#cb27-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb27-60"><a href="#cb27-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-61"><a href="#cb27-61" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(osr_mf, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
-<span id="cb27-62"><a href="#cb27-62" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
-<span id="cb27-63"><a href="#cb27-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-64"><a href="#cb27-64" aria-hidden="true" tabindex="-1"></a>p.osmf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> o_conT)) <span class="sc">+</span></span>
-<span id="cb27-65"><a href="#cb27-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb27-66"><a href="#cb27-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb27-67"><a href="#cb27-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb27-68"><a href="#cb27-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
-<span id="cb27-69"><a href="#cb27-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
-<span id="cb27-70"><a href="#cb27-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span></span>
-<span id="cb27-71"><a href="#cb27-71" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb27-72"><a href="#cb27-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb27-73"><a href="#cb27-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
-<span id="cb27-74"><a href="#cb27-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
-<span id="cb27-75"><a href="#cb27-75" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb27-76"><a href="#cb27-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb27-77"><a href="#cb27-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-78"><a href="#cb27-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-79"><a href="#cb27-79" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(p.cgmf, p.ogmf, p.csmf, p.osmf, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GAMs</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co"># create a dataframe of values fitted to the model</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(cgam_mf, <span class="at">data =</span> coll_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>p.cgmf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue4"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> c_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (Years)"</span>,</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI"</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>),</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">aspect.ratio =</span> <span class="fl">1.2</span></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(ogam_mf, <span class="at">data =</span> ostc_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>p.ogmf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue4"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> o_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (Years)"</span>,</span>
+<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
+<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI"</span></span>
+<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>),</span>
+<span id="cb31-36"><a href="#cb31-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">aspect.ratio =</span> <span class="fl">1.2</span></span>
+<span id="cb31-37"><a href="#cb31-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb31-38"><a href="#cb31-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb31-39"><a href="#cb31-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-40"><a href="#cb31-40" aria-hidden="true" tabindex="-1"></a><span class="co"># SRs</span></span>
+<span id="cb31-41"><a href="#cb31-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-42"><a href="#cb31-42" aria-hidden="true" tabindex="-1"></a><span class="co"># generate prediction data</span></span>
+<span id="cb31-43"><a href="#cb31-43" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">mean_age =</span> <span class="fu">seq</span>(<span class="fu">min</span>(coll_data<span class="sc">$</span>mean_age),</span>
+<span id="cb31-44"><a href="#cb31-44" aria-hidden="true" tabindex="-1"></a>                                     <span class="fu">max</span>(coll_data<span class="sc">$</span>mean_age),</span>
+<span id="cb31-45"><a href="#cb31-45" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">length.out =</span> <span class="dv">1000</span>))</span>
+<span id="cb31-46"><a href="#cb31-46" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(csr_mf, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
+<span id="cb31-47"><a href="#cb31-47" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
+<span id="cb31-48"><a href="#cb31-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-49"><a href="#cb31-49" aria-hidden="true" tabindex="-1"></a>p.csmf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(coll_data, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> c_conT)) <span class="sc">+</span></span>
+<span id="cb31-50"><a href="#cb31-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb31-51"><a href="#cb31-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb31-52"><a href="#cb31-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb31-53"><a href="#cb31-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (Years)"</span>,</span>
+<span id="cb31-54"><a href="#cb31-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
+<span id="cb31-55"><a href="#cb31-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span>,</span>
+<span id="cb31-56"><a href="#cb31-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">aspect.ratio =</span> <span class="fl">1.2</span></span>
+<span id="cb31-57"><a href="#cb31-57" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb31-58"><a href="#cb31-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb31-59"><a href="#cb31-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb31-60"><a href="#cb31-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
+<span id="cb31-61"><a href="#cb31-61" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb31-62"><a href="#cb31-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb31-63"><a href="#cb31-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-64"><a href="#cb31-64" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(osr_mf, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
+<span id="cb31-65"><a href="#cb31-65" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
+<span id="cb31-66"><a href="#cb31-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-67"><a href="#cb31-67" aria-hidden="true" tabindex="-1"></a>p.osmf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> o_conT)) <span class="sc">+</span></span>
+<span id="cb31-68"><a href="#cb31-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb31-69"><a href="#cb31-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb31-70"><a href="#cb31-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb31-71"><a href="#cb31-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb31-72"><a href="#cb31-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
+<span id="cb31-73"><a href="#cb31-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span>,</span>
+<span id="cb31-74"><a href="#cb31-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">aspect.ratio =</span> <span class="fl">1.2</span></span>
+<span id="cb31-75"><a href="#cb31-75" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb31-76"><a href="#cb31-76" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb31-77"><a href="#cb31-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb31-78"><a href="#cb31-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
+<span id="cb31-79"><a href="#cb31-79" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb31-80"><a href="#cb31-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb31-81"><a href="#cb31-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-82"><a href="#cb31-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-83"><a href="#cb31-83" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(p.cgmf, p.ogmf, p.csmf, p.osmf, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -787,68 +807,68 @@ OsteocalcinF  numeric,0</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GAMs</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(cgam_m, <span class="at">data =</span> coll_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>p.cgm <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue4"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> c_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI"</span></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(ogam_m, <span class="at">data =</span> ostc_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>p.ogm <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
-<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue4"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> o_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
-<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
-<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI"</span></span>
-<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(csr_m, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
-<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
-<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>p.csm <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(coll_data, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> c_conT)) <span class="sc">+</span></span>
-<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (Years)"</span>,</span>
-<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
-<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span></span>
-<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
-<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
-<span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(osr_m, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
-<span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
-<span id="cb28-47"><a href="#cb28-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-48"><a href="#cb28-48" aria-hidden="true" tabindex="-1"></a>p.osm <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> o_conT)) <span class="sc">+</span></span>
-<span id="cb28-49"><a href="#cb28-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb28-50"><a href="#cb28-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb28-51"><a href="#cb28-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb28-52"><a href="#cb28-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
-<span id="cb28-53"><a href="#cb28-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
-<span id="cb28-54"><a href="#cb28-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span></span>
-<span id="cb28-55"><a href="#cb28-55" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb28-56"><a href="#cb28-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb28-57"><a href="#cb28-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
-<span id="cb28-58"><a href="#cb28-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
-<span id="cb28-59"><a href="#cb28-59" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb28-60"><a href="#cb28-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb28-61"><a href="#cb28-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-62"><a href="#cb28-62" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(p.cgm, p.ogm, p.csm, p.osm,<span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GAMs</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(cgam_m, <span class="at">data =</span> coll_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>p.cgm <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue4"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> c_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI"</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(ogam_m, <span class="at">data =</span> ostc_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>p.ogm <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue4"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> o_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI"</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(csr_m, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>p.csm <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(coll_data, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> c_conT)) <span class="sc">+</span></span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (Years)"</span>,</span>
+<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span></span>
+<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb32-41"><a href="#cb32-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
+<span id="cb32-42"><a href="#cb32-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-43"><a href="#cb32-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb32-44"><a href="#cb32-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-45"><a href="#cb32-45" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(osr_m, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
+<span id="cb32-46"><a href="#cb32-46" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
+<span id="cb32-47"><a href="#cb32-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-48"><a href="#cb32-48" aria-hidden="true" tabindex="-1"></a>p.osm <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> o_conT)) <span class="sc">+</span></span>
+<span id="cb32-49"><a href="#cb32-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb32-50"><a href="#cb32-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb32-51"><a href="#cb32-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb32-52"><a href="#cb32-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb32-53"><a href="#cb32-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
+<span id="cb32-54"><a href="#cb32-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span></span>
+<span id="cb32-55"><a href="#cb32-55" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-56"><a href="#cb32-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb32-57"><a href="#cb32-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb32-58"><a href="#cb32-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
+<span id="cb32-59"><a href="#cb32-59" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-60"><a href="#cb32-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb32-61"><a href="#cb32-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-62"><a href="#cb32-62" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(p.cgm, p.ogm, p.csm, p.osm,<span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -873,68 +893,68 @@ OsteocalcinF  numeric,0</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GAMs</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(cgam_f, <span class="at">data =</span> coll_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>p.cgf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> c_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI, Females"</span></span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(ogam_f, <span class="at">data =</span> ostc_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>p.ogf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> o_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI"</span></span>
-<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(csr_f, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
-<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
-<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>p.csf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(coll_data, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> c_conT)) <span class="sc">+</span></span>
-<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (Years)"</span>,</span>
-<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
-<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span></span>
-<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
-<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
-<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(osr_f, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
-<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
-<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a>p.osf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> o_conT)) <span class="sc">+</span></span>
-<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
-<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
-<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span></span>
-<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb29-57"><a href="#cb29-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
-<span id="cb29-58"><a href="#cb29-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
-<span id="cb29-59"><a href="#cb29-59" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb29-60"><a href="#cb29-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="cb29-61"><a href="#cb29-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-62"><a href="#cb29-62" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(p.cgf, p.ogf, p.csf, p.osf, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GAMs</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(cgam_f, <span class="at">data =</span> coll_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>p.cgf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> c_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI, Females"</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>fitted_df <span class="ot">&lt;-</span> <span class="fu">fitted_values</span>(ogam_f, <span class="at">data =</span> ostc_data, <span class="at">include_data =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">"response"</span>)</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>p.ogf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> .fitted)) <span class="sc">+</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> .lower_ci, <span class="at">ymax =</span> .upper_ci), <span class="at">fill =</span> <span class="st">"lightblue"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> o_conT), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"GAM Fit with 95% CI"</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(csr_f, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>p.csf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(coll_data, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> c_conT)) <span class="sc">+</span></span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb33-35"><a href="#cb33-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age (Years)"</span>,</span>
+<span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Collagen (nM, SG-corrected)"</span>,</span>
+<span id="cb33-37"><a href="#cb33-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span></span>
+<span id="cb33-38"><a href="#cb33-38" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-39"><a href="#cb33-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb33-40"><a href="#cb33-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb33-41"><a href="#cb33-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
+<span id="cb33-42"><a href="#cb33-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-43"><a href="#cb33-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb33-44"><a href="#cb33-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-45"><a href="#cb33-45" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">predict</span>(osr_f, <span class="at">newdata =</span> newdata, <span class="at">interval =</span> <span class="st">"confidence"</span>)</span>
+<span id="cb33-46"><a href="#cb33-46" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">cbind</span>(newdata, <span class="fu">as.data.frame</span>(b))</span>
+<span id="cb33-47"><a href="#cb33-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-48"><a href="#cb33-48" aria-hidden="true" tabindex="-1"></a>p.osf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(fitted_df, <span class="fu">aes</span>(<span class="at">x =</span> mean_age, <span class="at">y =</span> o_conT)) <span class="sc">+</span></span>
+<span id="cb33-49"><a href="#cb33-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds, <span class="fu">aes</span>(<span class="at">y =</span> fit), <span class="at">color =</span> <span class="st">"red3"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb33-50"><a href="#cb33-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb33-51"><a href="#cb33-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb33-52"><a href="#cb33-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb33-53"><a href="#cb33-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Osteocalcin (ng/mL, SG-corrected)"</span>,</span>
+<span id="cb33-54"><a href="#cb33-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"SR Fit"</span></span>
+<span id="cb33-55"><a href="#cb33-55" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-56"><a href="#cb33-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb33-57"><a href="#cb33-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb33-58"><a href="#cb33-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">4</span>)</span>
+<span id="cb33-59"><a href="#cb33-59" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb33-60"><a href="#cb33-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb33-61"><a href="#cb33-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-62"><a href="#cb33-62" aria-hidden="true" tabindex="-1"></a><span class="fu">ggarrange</span>(p.cgf, p.ogf, p.csf, p.osf, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -954,6 +974,67 @@ OsteocalcinF  numeric,0</code></pre>
 </figure>
 </div>
 </section>
+</section>
+<section id="summarizing-results" class="level3">
+<h3 class="anchored" data-anchor-id="summarizing-results">Summarizing Results</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>get.trends <span class="ot">&lt;-</span> <span class="cf">function</span>(model, name){</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(model, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">trend =</span> <span class="fu">case_when</span>(</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>        .lower_ci <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"increasing"</span>,</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>        .upper_ci <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"decreasing"</span>,</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"nonsig"</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    ) </span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  dts <span class="ot">&lt;-</span> dts <span class="sc">%&gt;%</span> </span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">grp =</span> <span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="fu">diff</span>(trend <span class="sc">!=</span> <span class="fu">lag</span>(trend, <span class="at">default =</span> <span class="fu">first</span>(trend))) <span class="sc">!=</span> <span class="dv">0</span>)))</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>  period_list <span class="ot">&lt;-</span> dts <span class="sc">%&gt;%</span> </span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(trend <span class="sc">!=</span> <span class="st">"none"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(trend, grp) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">start =</span> <span class="fu">min</span>(dts<span class="sc">$</span>mean_age),</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">end =</span> <span class="fu">max</span>(dts<span class="sc">$</span>mean_age),</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(period_list)</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(peak_ages) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"cgam_mf"</span>, <span class="st">"cgam_m"</span>, <span class="st">"cgam_f"</span>, <span class="st">"ogam_mf"</span>, <span class="st">"ogam_m"</span>, <span class="st">"ogam_f"</span>)</span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Collagen (All)"</span>, <span class="st">"Collagen (Male)"</span>, <span class="st">"Collagen (Female)"</span>, <span class="st">"Osteocalcin (All)"</span>, <span class="st">"Osteocalcin (Male)"</span>, <span class="st">"Osteocalcin (Female)"</span>)</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>model.names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"cgam_mf"</span>, <span class="st">"cgam_m"</span>, <span class="st">"cgam_f"</span>, <span class="st">"ogam_mf"</span>, <span class="st">"ogam_m"</span>, <span class="st">"ogam_f"</span>)</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>full_summary <span class="ot">&lt;-</span> <span class="fu">map2_dfr</span>(models, names, model.names, <span class="cf">function</span>(model, name, model.name){</span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">summary</span>(model)</span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>  peak <span class="ot">&lt;-</span> peak_ages<span class="sc">$</span>model.name</span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>  trends <span class="ot">&lt;-</span> <span class="fu">get.trends</span>(model, name)</span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model =</span> name,</span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">N =</span> <span class="fu">nrow</span>(model<span class="sc">$</span>model),</span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">EDF =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"edf"</span>], <span class="dv">2</span>),</span>
+<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ref.DF =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"Ref.df"</span>], <span class="dv">2</span>),</span>
+<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">.F =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"F"</span>], <span class="dv">2</span>),</span>
+<span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">p.value =</span> <span class="fu">signif</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"p-value"</span>], <span class="dv">3</span>),</span>
+<span id="cb34-41"><a href="#cb34-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">Peak.Age =</span> <span class="fu">round</span>(peak, <span class="dv">2</span>),</span>
+<span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sig.Increase =</span> <span class="fu">paste</span>(trends <span class="sc">%&gt;%</span> <span class="fu">filter</span>(trend <span class="sc">==</span> <span class="st">"increase"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">interval =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(start, <span class="dv">2</span>), <span class="st">"-"</span>, <span class="fu">round</span>(end, <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pull</span>(interval), <span class="at">collapse =</span> <span class="st">"; "</span>),</span>
+<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sig.Decrease =</span> <span class="fu">paste</span>(trends <span class="sc">%&gt;%</span> <span class="fu">filter</span>(trend <span class="sc">==</span> <span class="st">"decrease"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">interval =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(start, <span class="dv">2</span>), <span class="st">"-"</span>, <span class="fu">round</span>(end, <span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pull</span>(interval), <span class="at">collapse =</span> <span class="st">"; "</span>)</span>
+<span id="cb34-48"><a href="#cb34-48" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb34-49"><a href="#cb34-49" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb34-50"><a href="#cb34-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-51"><a href="#cb34-51" aria-hidden="true" tabindex="-1"></a>full_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+
+</div>
+</div>
+</div>
 </section>
 </section>
 </section>

@@ -207,7 +207,7 @@ But we still need to extract the ages at which each GAM peaks and while we're at
 peak_ages <- list()
 # starting with collagen
 # make a dataframe of the derivatives of cgam
-dts <- derivatives(cgam_mf, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+dts <- derivatives(cgam_mf, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE)
 # extract the inflection point (should be the peak of the model)
 inflect <- with(dts, which(diff(sign(.derivative)) == -2))
 # add 1 because stack overflow said so
@@ -245,36 +245,36 @@ Now we just need to repeat this process for all of the other models
 
 # now we repeat for all the other models
 # cgam_m
-dts <- derivatives(cgam_m, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+dts <- derivatives(cgam_m, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE)
 # here, we have to use first() because there are multiple inflection points
 inflect <- first(with(dts, which(diff(sign(.derivative)) == -2)))
 peak_ages$CollagenM <- dts$mean_age[inflect + 1]
 
 # cgam_f
-dts <- derivatives(cgam_f, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+dts <- derivatives(cgam_f, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE)
 inflect <- with(dts, which(diff(sign(.derivative)) == -2))
 peak_ages$CollagenF <- dts$mean_age[inflect + 1]
 
 # ogam_mf
-dts <- derivatives(ogam_mf, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+dts <- derivatives(ogam_mf, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE)
 # here, we have to use first() because there are multiple inflection points
 inflect <- first(with(dts, which(diff(sign(.derivative)) == -2)))
 peak_ages$OsteocalcinMF <- dts$mean_age[inflect + 1]
 
 # ogam_m
-dts <- derivatives(ogam_m, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+dts <- derivatives(ogam_m, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE)
 # here, we have to use first() because there are multiple inflection points
 inflect <- first(with(dts, which(diff(sign(.derivative)) == -2)))
 peak_ages$OsteocalcinM <- dts$mean_age[inflect + 1]
 
 # ogam_f
-dts <- derivatives(ogam_f, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+dts <- derivatives(ogam_f, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE)
 inflect <- with(dts, which(diff(sign(.derivative)) == -2))
 peak_ages$OsteocalcinF <- dts$mean_age[inflect + 1]
 
-models <- list(cgam_mg = cgam_mf, cgam_m = cgam_m, cgam_f = cgam_f, ogam_mf = ogam_mf, ogam_m = ogam_m, ogam_f = ogam_f)
+models <- list(cgam_mf = cgam_mf, cgam_m = cgam_m, cgam_f = cgam_f, ogam_mf = ogam_mf, ogam_m = ogam_m, ogam_f = ogam_f)
 period_list <- imap_dfr(models, function(model, name){
-  dts <- derivatives(model, select = "s(mean_age)", interval = "confidence", partial_match = TRUE) %>% 
+  dts <- derivatives(model, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE) %>% 
     mutate(
       sig = case_when(
         .lower_ci > 0 ~ "increasing",
@@ -296,7 +296,7 @@ as.matrix(peak_ages)
 I could not for the life of me get a nonzero value for the two female models. As far as I can tell, this comes from the behavior of the `gratia` package. I think the problem is either caused by derivative being too flat at the inflection point such that when `gratia` smooths, it misses the inflection point OR the confidence interval of the derivative overlaps with 0 at the inflection point. I suppose the sample size could also be playing a role, but long story short I couldn't get it to recognize either of the inflection points seen in the visualizations of the female models. When inspecting the derivatives, the inflection point for cgam_f can be seen between dts\$.derivative\[73\] and dts\$.derivative\[74\] at very small decimal values which supports my idea that the `gratia` package is smoothing over the inflection point.
 
 ```{r}
-dts <- derivatives(cgam_f, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+dts <- derivatives(cgam_f, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE)
 print(with(dts, .derivative)[70:80])
 print(with(dts, .derivative)[73:74])
 ```
@@ -304,7 +304,7 @@ print(with(dts, .derivative)[73:74])
 And the same can be seen in ogam_f at derivative indices 67-68:
 
 ```{r}
-dts <- derivatives(ogam_f, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+dts <- derivatives(ogam_f, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE)
 print(with(dts, .derivative)[64:74])
 print(with(dts, .derivative)[67:68])
 ```
@@ -592,3 +592,59 @@ ggarrange(p.cgf, p.ogf, p.csf, p.osf, nrow = 2, ncol = 2)
 #### Sandel et al. Figure 3: Females Only
 
 ![Biomarker levels in female chimpanzees. We transformed collagen and osteocalcin values to approximate a normal residual distribution. The solid blue lines (upper panels) represent the generalized additive models (GAMs) with confidence intervals as dashed lines; red lines (lower panels) represent segmented regression. Among female chimpanzees, GAMs suggest an incrementally lower turnover with age, but segmented regressions indicate a peak at 13 years for collagen and 7 years for osteocalcin.](img/figure3.png)
+
+### Summarizing Results
+
+```{r}
+get.trends <- function(model, name){
+  dts <- derivatives(model, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE) %>% 
+    mutate(
+      trend = case_when(
+        .lower_ci > 0 ~ "increasing",
+        .upper_ci < 0 ~ "decreasing",
+        TRUE ~ "nonsig"
+      )
+    ) 
+  
+  dts <- dts %>% 
+    mutate(grp = cumsum(c(TRUE, diff(trend != lag(trend, default = first(trend))) != 0)))
+    
+  period_list <- dts %>% 
+    filter(trend != "none") %>% 
+    group_by(trend, grp) %>% 
+    summarise(
+      start = min(dts$mean_age),
+      end = max(dts$mean_age),
+      .groups = "drop"
+    )
+  
+  return(period_list)
+}
+names(peak_ages) <- c("cgam_mf", "cgam_m", "cgam_f", "ogam_mf", "ogam_m", "ogam_f")
+names <- c("Collagen (All)", "Collagen (Male)", "Collagen (Female)", "Osteocalcin (All)", "Osteocalcin (Male)", "Osteocalcin (Female)")
+model.names <- c("cgam_mf", "cgam_m", "cgam_f", "ogam_mf", "ogam_m", "ogam_f")
+
+full_summary <- map2_dfr(models, names, model.names, function(model, name, model.name){
+  s <- summary(model)
+  peak <- peak_ages$model.name
+  trends <- get.trends(model, name)
+  
+  tibble(
+    Model = name,
+    N = nrow(model$model),
+    EDF = round(s$s.table[1, "edf"], 2),
+    Ref.DF = round(s$s.table[1, "Ref.df"], 2),
+    .F = round(s$s.table[1, "F"], 2),
+    p.value = signif(s$s.table[1, "p-value"], 3),
+    Peak.Age = round(peak, 2),
+    Sig.Increase = paste(trends %>% filter(trend == "increase")) %>% 
+      mutate(interval = paste0(round(start, 2), "-", round(end, 2)) %>% 
+      pull(interval), collapse = "; "),
+    Sig.Decrease = paste(trends %>% filter(trend == "decrease")) %>% 
+      mutate(interval = paste0(round(start, 2), "-", round(end, 2)) %>% 
+      pull(interval), collapse = "; ")
+  )
+})
+
+full_summary
+```
