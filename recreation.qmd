@@ -596,6 +596,17 @@ ggarrange(p.cgf, p.ogf, p.csf, p.osf, nrow = 2, ncol = 2)
 ### Summarizing Results
 
 ```{r}
+full_summary <- pmap_dfr(list(models, names, model.names), function(model, name, model.name){print(paste0("model s.table= ", summary(model)$s.table[1], "|", "name= ", name, "|", "model.name= ", model.name))
+    }
+  )
+#summary(cgam_mf)
+```
+
+```{r}
+names(peak_ages) <- c("cgam_mf", "cgam_m", "cgam_f", "ogam_mf", "ogam_m", "ogam_f")
+names <- c("Collagen (All)", "Collagen (Male)", "Collagen (Female)", "Osteocalcin (All)", "Osteocalcin (Male)", "Osteocalcin (Female)")
+model.names <- c("cgam_mf", "cgam_m", "cgam_f", "ogam_mf", "ogam_m", "ogam_f")
+
 get.trends <- function(model, name){
   dts <- derivatives(model, select = "s(mean_age)", interval = "simultaneous", partial_match = TRUE) %>% 
     mutate(
@@ -610,7 +621,7 @@ get.trends <- function(model, name){
     mutate(grp = cumsum(c(TRUE, diff(trend != lag(trend, default = first(trend))) != 0)))
     
   period_list <- dts %>% 
-    filter(trend != "none") %>% 
+    filter(trend != "nonsig") %>% 
     group_by(trend, grp) %>% 
     summarise(
       start = min(dts$mean_age),
@@ -620,11 +631,8 @@ get.trends <- function(model, name){
   
   return(period_list)
 }
-names(peak_ages) <- c("cgam_mf", "cgam_m", "cgam_f", "ogam_mf", "ogam_m", "ogam_f")
-names <- c("Collagen (All)", "Collagen (Male)", "Collagen (Female)", "Osteocalcin (All)", "Osteocalcin (Male)", "Osteocalcin (Female)")
-model.names <- c("cgam_mf", "cgam_m", "cgam_f", "ogam_mf", "ogam_m", "ogam_f")
 
-full_summary <- map2_dfr(models, names, model.names, function(model, name, model.name){
+full_summary <- pmap_dfr(list(models, names, model.names), function(model, name, model.name){
   s <- summary(model)
   peak <- peak_ages$model.name
   trends <- get.trends(model, name)
@@ -637,10 +645,10 @@ full_summary <- map2_dfr(models, names, model.names, function(model, name, model
     .F = round(s$s.table[1, "F"], 2),
     p.value = signif(s$s.table[1, "p-value"], 3),
     Peak.Age = round(peak, 2),
-    Sig.Increase = paste(trends %>% filter(trend == "increase")) %>% 
+    Sig.Increase = paste0(trends %>% filter(trend == "increase")) %>% 
       mutate(interval = paste0(round(start, 2), "-", round(end, 2)) %>% 
       pull(interval), collapse = "; "),
-    Sig.Decrease = paste(trends %>% filter(trend == "decrease")) %>% 
+    Sig.Decrease = paste0(trends %>% filter(trend == "decrease")) %>% 
       mutate(interval = paste0(round(start, 2), "-", round(end, 2)) %>% 
       pull(interval), collapse = "; ")
   )
