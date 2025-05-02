@@ -150,8 +150,101 @@ cgam_f <- gam(c_conT ~ s(mean_age, bs = "cr"), method = "REML", data = filter(co
 ogam_f <- gam(o_conT ~ s(mean_age, bs = "cr"), method = "REML", data = filter(ostc_data, sex == "Female"))
 ```
 
+But we still need to extract the ages at which each GAM peaks
+
 ```{r}
-#| label: making plots
+#| label: extracting peak ages
+
+peak_ages <- list()
+# starting with collagen
+# make a dataframe of the derivatives of cgam
+dts <- derivatives(cgam_mf, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+# extract the inflection point (should be the peak of the model)
+inflect <- with(dts, which(diff(sign(.derivative)) == -2))
+# add 1 because stack overflow said so
+peak_ages$CollagenMF <- dts$mean_age[inflect + 1]
+
+# now we repeat for all the other models
+# cgam_m
+dts <- derivatives(cgam_m, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+# here, we have to use first() because there are multiple inflection points
+inflect <- first(with(dts, which(diff(sign(.derivative)) == -2)))
+peak_ages$CollagenM <- dts$mean_age[inflect + 1]
+
+# cgam_f
+dts <- derivatives(cgam_f, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+inflect <- with(dts, which(diff(sign(.derivative)) == -2))
+peak_ages$CollagenF <- dts$mean_age[inflect + 1]
+
+# ogam_mf
+dts <- derivatives(ogam_mf, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+# here, we have to use first() because there are multiple inflection points
+inflect <- first(with(dts, which(diff(sign(.derivative)) == -2)))
+peak_ages$OsteocalcinMF <- dts$mean_age[inflect + 1]
+
+# ogam_m
+dts <- derivatives(ogam_m, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+# here, we have to use first() because there are multiple inflection points
+inflect <- first(with(dts, which(diff(sign(.derivative)) == -2)))
+peak_ages$OsteocalcinM <- dts$mean_age[inflect + 1]
+
+# ogam_f
+dts <- derivatives(ogam_f, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
+inflect <- with(dts, which(diff(sign(.derivative)) == -2))
+peak_ages$OsteocalcinF <- dts$mean_age[inflect + 1]
+
+as.matrix(peak_ages)
+```
+
+I could not for the life of me get a nonzero value for the two female models. As far as I can tell, this comes from the behavior of the `gratia` package. I think the problem is either caused by derivative being too flat at the inflection point such that when `gratia` smooths, it misses the inflection point OR the confidence interval of the derivative overlaps with 0. I suppose the sample size could also be playing a role, but long story short I couldn't get it to recognize either of the inflection points seen in the visualizations of the female models. When inspecting the derivatives, the inflection point for cgam_f can be seen between dts\$.derivative\[73\] and dts\$.derivative\[74\] at very small decimal values which supports my idea that the `gratia` package is smoothing over the inflection point.
+
+```{r}
+print(with(dts, .derivative)[70:80])
+print(with(dts, .derivative)[73:74])
+```
+
+And the same can be seen in ogam_f at derivative indices 67-68:
+
+```{r}
+print(with(dts, .derivative)[64:74])
+print(with(dts, .derivative)[67:68])
+```
+
+I include a range of 10 values around the inflection point to demonstrate that it is not an instantaneous change in sign and represents a true inflection point.
+
+Now we can make our segmented regressions
+
+```{r}
+#| label: segmented linear regressions
+
+# both sexes
+csr_mf <- segmented(lm(c_conT ~ mean_age, data = coll_data), seg.Z = ~mean_age, npsi = 3)
+osr_mf <- segmented(lm(o_conT ~ mean_age, data = ostc_data), seg.Z = ~mean_age, npsi = 3)
+
+# males only
+csr_m <- segmented(lm(c_conT ~ mean_age, data = filter(coll_data, sex == "Male")), seg.Z = ~mean_age, npsi = 3)
+osr_m <- segmented(lm(o_conT ~ mean_age, data = filter(ostc_data, sex == "Male")), seg.Z = ~mean_age, npsi = 3)
+
+# females only
+csr_f <- segmented(lm(c_conT ~ mean_age, data = filter(coll_data, sex == "Female")), seg.Z = ~mean_age, npsi = 3)
+osr_f <- segmented(lm(o_conT ~ mean_age, data = filter(ostc_data, sex == "Female")), seg.Z = ~mean_age, npsi = 3)
+```
+
+and let's go ahead and run our checks for both types of model
+
+```{r}
+#| label: checking models
+
+gams <- list(cgam_mf, cgam_m, cgam_f, ogam_mf, ogam_m, ogam_f)
+srs <- list(csr_mf, csr_m, csr_f, osr_mf, osr_m, osr_f)
+for(i in 1:length(gams)){
+  gam.check(gams[i])
+}
+
+```
+
+```{r}
+#| label: making plots - both sexes
 
 # Add fitted values + 95% CI to your data
 fitted_df <- fitted_values(cgam_mf, data = coll_data, include_data = TRUE, scale = "response")
@@ -159,12 +252,13 @@ fitted_df <- fitted_values(cgam_mf, data = coll_data, include_data = TRUE, scale
 p.cmf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
   geom_line(color = "blue", linewidth = 1.2) +
-  geom_point(aes(y = c_conT), color = "gray50", alpha = 0.5, size = 1) +
+  geom_point(aes(y = c_conT), color = "gray", alpha = 0.5, size = 1) +
   labs(
     x = "Age",
     y = "Collagen concentration (nM, SG-corrected)",
     title = "GAM Fit with 95% CI"
   ) +
+ # coord_fixed(ratio = 4/3) +
   theme_bw()
 
 fitted_df <- fitted_values(ogam_mf, data = ostc_data, include_data = TRUE, scale = "response")
@@ -178,7 +272,32 @@ p.omf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
     y = "Osteocalcin concentration (nM, SG-corrected)",
     title = "GAM Fit with 95% CI"
   ) +
+  #coord_fixed(ratio = 1) +
   theme_bw()
 
 ggarrange(p.cmf, p.omf, nrow = 1, ncol = 2)
+```
+
+```{r}
+#| label: making plots - males only
+```
+
+```{r}
+#| label: making plots - females only
+
+fitted_df <- fitted_values(cgam_f, data = coll_data, include_data = TRUE, scale = "response")
+
+p.cf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.7) +
+  geom_line(color = "blue", linewidth = 1.2) +
+  geom_point(aes(y = c_conT), color = "gray", alpha = 0.5, size = 1) +
+  labs(
+    x = "Age",
+    y = "Collagen concentration (nM, SG-corrected)",
+    title = "GAM Fit with 95% CI, Females"
+  ) +
+ # coord_fixed(ratio = 4/3) +
+  theme_bw()
+
+
 ```
