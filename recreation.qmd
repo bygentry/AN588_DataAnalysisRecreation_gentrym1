@@ -6,7 +6,7 @@ format:
     code-overflow: wrap
     toc: true
     toc-location: left
-    toc-depth: 2
+    toc-depth: 3
     toc-title: Contents
     df-print: kable
     theme: minty
@@ -289,10 +289,11 @@ period_list <- imap_dfr(models, function(model, name){
     mutate(model = name)
 })
 period_list
+print("Don't forget the peak ages:")
 as.matrix(peak_ages)
 ```
 
-I could not for the life of me get a nonzero value for the two female models. As far as I can tell, this comes from the behavior of the `gratia` package. I think the problem is either caused by derivative being too flat at the inflection point such that when `gratia` smooths, it misses the inflection point OR the confidence interval of the derivative overlaps with 0. I suppose the sample size could also be playing a role, but long story short I couldn't get it to recognize either of the inflection points seen in the visualizations of the female models. When inspecting the derivatives, the inflection point for cgam_f can be seen between dts\$.derivative\[73\] and dts\$.derivative\[74\] at very small decimal values which supports my idea that the `gratia` package is smoothing over the inflection point.
+I could not for the life of me get a nonzero value for the two female models. As far as I can tell, this comes from the behavior of the `gratia` package. I think the problem is either caused by derivative being too flat at the inflection point such that when `gratia` smooths, it misses the inflection point OR the confidence interval of the derivative overlaps with 0 at the inflection point. I suppose the sample size could also be playing a role, but long story short I couldn't get it to recognize either of the inflection points seen in the visualizations of the female models. When inspecting the derivatives, the inflection point for cgam_f can be seen between dts\$.derivative\[73\] and dts\$.derivative\[74\] at very small decimal values which supports my idea that the `gratia` package is smoothing over the inflection point.
 
 ```{r}
 dts <- derivatives(cgam_f, select = "s(mean_age)", interval = "confidence", partial_match = TRUE)
@@ -312,7 +313,7 @@ I include a range of 10 values around the inflection point to demonstrate that i
 
 #### Segmented Regressions
 
-Moving on, let's make our segmented regressions
+Moving on, let's make our segmented regressions using `segmented()` from the package `segmented` using linear models
 
 ```{r}
 #| label: segmented linear regressions
@@ -371,7 +372,8 @@ p.cgmf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   ) +
   theme(
     axis.title = element_text(size = 6),
-    axis.text = element_text(size = 4)
+    axis.text = element_text(size = 4),
+    aspect.ratio = 1.2
   ) +
   theme_bw()
 
@@ -388,7 +390,8 @@ p.ogmf <- ggplot(fitted_df, aes(x = mean_age, y = .fitted)) +
   ) +
   theme(
     axis.title = element_text(size = 6),
-    axis.text = element_text(size = 4)
+    axis.text = element_text(size = 4),
+    aspect.ratio = 1.2
   ) +
   theme_bw()
 
@@ -407,7 +410,8 @@ p.csmf <- ggplot(coll_data, aes(x = mean_age, y = c_conT)) +
   labs(
     x = "Age (Years)",
     y = "Collagen (nM, SG-corrected)",
-    title = "SR Fit"
+    title = "SR Fit",
+    aspect.ratio = 1.2
   ) +
   theme(
     axis.title = element_text(size = 6),
@@ -424,7 +428,8 @@ p.osmf <- ggplot(fitted_df, aes(x = mean_age, y = o_conT)) +
   labs(
     x = "Age",
     y = "Osteocalcin (ng/mL, SG-corrected)",
-    title = "SR Fit"
+    title = "SR Fit",
+    aspect.ratio = 1.2
   ) +
   theme(
     axis.title = element_text(size = 6),
