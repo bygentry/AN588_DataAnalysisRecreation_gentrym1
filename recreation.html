@@ -580,7 +580,7 @@ Caused by warning in `min()`:
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
-<td style="text-align: right;">15.034343</td>
+<td style="text-align: right;">13.760202</td>
 <td style="text-align: right;">20.76798</td>
 <td style="text-align: left;">cgam_f</td>
 </tr>
@@ -588,7 +588,7 @@ Caused by warning in `min()`:
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">decreasing</td>
 <td style="text-align: right;">12.729091</td>
-<td style="text-align: right;">35.19273</td>
+<td style="text-align: right;">34.55091</td>
 <td style="text-align: left;">ogam_mf</td>
 </tr>
 <tr class="odd">
@@ -977,84 +977,85 @@ OsteocalcinF  numeric,0</code></pre>
 </section>
 <section id="summarizing-results" class="level3">
 <h3 class="anchored" data-anchor-id="summarizing-results">Summarizing Results</h3>
+<p>Housekeeping:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">#full_summary &lt;- pmap_dfr(list(models, table_names, model.names), function(model, table_name, model.name){</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  print(class(model.name))</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    }</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co">#  )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prep for producing the table</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(peak_ages) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"cgam_mf"</span>, <span class="st">"cgam_m"</span>, <span class="st">"cgam_f"</span>, <span class="st">"ogam_mf"</span>, <span class="st">"ogam_m"</span>, <span class="st">"ogam_f"</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>table_names <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">c</span>(<span class="st">"Collagen (All)"</span>, <span class="st">"Collagen (Male)"</span>, <span class="st">"Collagen (Female)"</span>, <span class="st">"Osteocalcin (All)"</span>, <span class="st">"Osteocalcin (Male)"</span>, <span class="st">"Osteocalcin (Female)"</span>))</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>model.names <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">c</span>(<span class="st">"cgam_mf"</span>, <span class="st">"cgam_m"</span>, <span class="st">"cgam_f"</span>, <span class="st">"ogam_mf"</span>, <span class="st">"ogam_m"</span>, <span class="st">"ogam_f"</span>))</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>inputs <span class="ot">&lt;-</span> <span class="fu">list</span>(models, table_names, model.names)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># the female models were being excluded because of they peak age being numeric(0), so overwrite with NA to ensure they're in the table</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>peak_ages<span class="sc">$</span>cgam_f <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>peak_ages<span class="sc">$</span>ogam_f <span class="ot">&lt;-</span> <span class="cn">NA</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Helper Functions:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>p.check <span class="ot">&lt;-</span> <span class="cf">function</span>(s){</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"p-value"</span>]</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(p <span class="sc">&lt;</span> <span class="fl">1e-3</span>){</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="st">"&lt;0.001"</span>)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span>{</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">as.character</span>(<span class="fu">round</span>(p, <span class="dv">3</span>)))</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>b.check <span class="ot">&lt;-</span> <span class="cf">function</span>(b){</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(b <span class="sc">==</span> <span class="st">""</span>){</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="cn">NA</span>)</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(b)</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(peak_ages) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"cgam_mf"</span>, <span class="st">"cgam_m"</span>, <span class="st">"cgam_f"</span>, <span class="st">"ogam_mf"</span>, <span class="st">"ogam_m"</span>, <span class="st">"ogam_f"</span>)</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>table_names <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"Collagen (All)"</span>, <span class="st">"Collagen (Male)"</span>, <span class="st">"Collagen (Female)"</span>, <span class="st">"Osteocalcin (All)"</span>, <span class="st">"Osteocalcin (Male)"</span>, <span class="st">"Osteocalcin (Female)"</span>)</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>model.names <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"cgam_mf"</span>, <span class="st">"cgam_m"</span>, <span class="st">"cgam_f"</span>, <span class="st">"ogam_mf"</span>, <span class="st">"ogam_m"</span>, <span class="st">"ogam_f"</span>)</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>get.trends <span class="ot">&lt;-</span> <span class="cf">function</span>(model, table_name){</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  dts <span class="ot">&lt;-</span> <span class="fu">derivatives</span>(model, <span class="at">select =</span> <span class="st">"s(mean_age)"</span>, <span class="at">interval =</span> <span class="st">"simultaneous"</span>, <span class="at">partial_match =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">trend =</span> <span class="fu">case_when</span>(</span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        .lower_ci <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"increasing"</span>,</span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        .upper_ci <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"decreasing"</span>,</span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"nonsig"</span></span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    ) </span>
-<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>  dts <span class="ot">&lt;-</span> dts <span class="sc">%&gt;%</span> </span>
-<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">grp =</span> <span class="fu">cumsum</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="fu">diff</span>(trend <span class="sc">!=</span> <span class="fu">lag</span>(trend, <span class="at">default =</span> <span class="fu">first</span>(trend))) <span class="sc">!=</span> <span class="dv">0</span>)))</span>
-<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>  period_list <span class="ot">&lt;-</span> dts <span class="sc">%&gt;%</span> </span>
-<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(trend <span class="sc">!=</span> <span class="st">"nonsig"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(trend, grp) <span class="sc">%&gt;%</span> </span>
-<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
-<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">start =</span> <span class="fu">min</span>(dts<span class="sc">$</span>mean_age),</span>
-<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">end =</span> <span class="fu">max</span>(dts<span class="sc">$</span>mean_age),</span>
-<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(period_list)</span>
-<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>inputs <span class="ot">&lt;-</span> <span class="fu">list</span>(models, table_names, model.names)</span>
-<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a>full_summary <span class="ot">&lt;-</span> <span class="fu">pmap_dfr</span>(inputs, <span class="cf">function</span>(model, table_name, model.name){</span>
-<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">summary</span>(model)</span>
-<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a>  peak <span class="ot">&lt;-</span> peak_ages[[model.name]]</span>
-<span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a>  trends <span class="ot">&lt;-</span> <span class="fu">get.trends</span>(model, table_name)</span>
-<span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb35-37"><a href="#cb35-37" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> trends <span class="sc">%&gt;%</span> </span>
-<span id="cb35-38"><a href="#cb35-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(trend <span class="sc">==</span> <span class="st">"increase"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb35-39"><a href="#cb35-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">interval =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(start, <span class="dv">2</span>), <span class="st">"-"</span>, <span class="fu">round</span>(end, <span class="dv">2</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb35-40"><a href="#cb35-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(interval) <span class="sc">%&gt;%</span> </span>
-<span id="cb35-41"><a href="#cb35-41" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"; "</span>)</span>
-<span id="cb35-42"><a href="#cb35-42" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb35-43"><a href="#cb35-43" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> trends <span class="sc">%&gt;%</span></span>
-<span id="cb35-44"><a href="#cb35-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(trend <span class="sc">==</span> <span class="st">"decrease"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb35-45"><a href="#cb35-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">interval =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(start, <span class="dv">2</span>), <span class="st">"-"</span>, <span class="fu">round</span>(end, <span class="dv">2</span>))) <span class="sc">%&gt;%</span> </span>
-<span id="cb35-46"><a href="#cb35-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(interval) <span class="sc">%&gt;%</span> </span>
-<span id="cb35-47"><a href="#cb35-47" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"; "</span>)</span>
-<span id="cb35-48"><a href="#cb35-48" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb35-49"><a href="#cb35-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
-<span id="cb35-50"><a href="#cb35-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model =</span> table_name,</span>
-<span id="cb35-51"><a href="#cb35-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">N =</span> <span class="fu">nrow</span>(model<span class="sc">$</span>model),</span>
-<span id="cb35-52"><a href="#cb35-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">EDF =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"edf"</span>], <span class="dv">2</span>),</span>
-<span id="cb35-53"><a href="#cb35-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ref.DF =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"Ref.df"</span>], <span class="dv">2</span>),</span>
-<span id="cb35-54"><a href="#cb35-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">.F =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"F"</span>], <span class="dv">2</span>),</span>
-<span id="cb35-55"><a href="#cb35-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">p.value =</span> <span class="fu">signif</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"p-value"</span>], <span class="dv">3</span>),</span>
-<span id="cb35-56"><a href="#cb35-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">Peak.Age =</span> <span class="fu">round</span>(peak, <span class="dv">2</span>),</span>
-<span id="cb35-57"><a href="#cb35-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sig.Increase =</span> a,</span>
-<span id="cb35-58"><a href="#cb35-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sig.Decrease =</span> b</span>
-<span id="cb35-59"><a href="#cb35-59" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb35-60"><a href="#cb35-60" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb35-61"><a href="#cb35-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-62"><a href="#cb35-62" aria-hidden="true" tabindex="-1"></a>full_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>full_summary <span class="ot">&lt;-</span> <span class="fu">pmap_dfr</span>(inputs, <span class="cf">function</span>(model, table_name, model.name){</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">summary</span>(model)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  peak <span class="ot">&lt;-</span> peak_ages[[model.name]]</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co">#  trends &lt;- get.trends(model)</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  a &lt;- trends %&gt;% </span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    filter(trend == "increase") %&gt;%</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    mutate(interval = paste0(round(start, 2), "-", round(end, 2))) %&gt;% </span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="co">#    pull(interval) %&gt;% </span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="co">#      paste(collapse = "; ")</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> period_list <span class="sc">%&gt;%</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(model <span class="sc">==</span> model.name) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">interval =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(start, <span class="dv">2</span>), <span class="st">"-"</span>, <span class="fu">round</span>(end, <span class="dv">2</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(interval) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">"; "</span>)</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model =</span> table_name,</span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">N =</span> <span class="fu">nrow</span>(model<span class="sc">$</span>model),</span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">EDF =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"edf"</span>], <span class="dv">2</span>),</span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ref.DF =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"Ref.df"</span>], <span class="dv">2</span>),</span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">.F =</span> <span class="fu">round</span>(s<span class="sc">$</span>s.table[<span class="dv">1</span>, <span class="st">"F"</span>], <span class="dv">2</span>),</span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">p.value =</span> <span class="fu">p.check</span>(s),</span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">Peak.Age =</span> <span class="fu">round</span>(peak, <span class="dv">2</span>),</span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sig.Increase =</span> <span class="cn">NA</span>,</span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sig.Decrease =</span> <span class="fu">b.check</span>(b)</span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a>full_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 22%">
+<col style="width: 24%">
 <col style="width: 4%">
 <col style="width: 5%">
 <col style="width: 8%">
-<col style="width: 7%">
+<col style="width: 6%">
 <col style="width: 9%">
 <col style="width: 10%">
 <col style="width: 15%">
@@ -1067,7 +1068,7 @@ OsteocalcinF  numeric,0</code></pre>
 <th style="text-align: right;">EDF</th>
 <th style="text-align: right;">Ref.DF</th>
 <th style="text-align: right;">.F</th>
-<th style="text-align: right;">p.value</th>
+<th style="text-align: left;">p.value</th>
 <th style="text-align: right;">Peak.Age</th>
 <th style="text-align: left;">Sig.Increase</th>
 <th style="text-align: left;">Sig.Decrease</th>
@@ -1080,10 +1081,10 @@ OsteocalcinF  numeric,0</code></pre>
 <td style="text-align: right;">5.10</td>
 <td style="text-align: right;">5.89</td>
 <td style="text-align: right;">11.83</td>
-<td style="text-align: right;">0.0000</td>
+<td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: right;">10.16</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">13.37-17.22</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Collagen (Male)</td>
@@ -1091,32 +1092,54 @@ OsteocalcinF  numeric,0</code></pre>
 <td style="text-align: right;">5.53</td>
 <td style="text-align: right;">6.41</td>
 <td style="text-align: right;">10.22</td>
-<td style="text-align: right;">0.0000</td>
+<td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: right;">10.98</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">12.98-16.99</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">Collagen (Female)</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">2.09</td>
+<td style="text-align: right;">2.57</td>
+<td style="text-align: right;">6.99</td>
+<td style="text-align: left;">0.001</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">13.76-20.77</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">Osteocalcin (All)</td>
 <td style="text-align: right;">106</td>
 <td style="text-align: right;">5.37</td>
 <td style="text-align: right;">6.17</td>
 <td style="text-align: right;">11.03</td>
-<td style="text-align: right;">0.0000</td>
+<td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: right;">8.24</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">12.73-34.55</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">Osteocalcin (Male)</td>
 <td style="text-align: right;">63</td>
 <td style="text-align: right;">4.53</td>
 <td style="text-align: right;">5.38</td>
 <td style="text-align: right;">3.62</td>
-<td style="text-align: right;">0.0049</td>
+<td style="text-align: left;">0.005</td>
 <td style="text-align: right;">9.47</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Osteocalcin (Female)</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">2.68</td>
+<td style="text-align: right;">3.23</td>
+<td style="text-align: right;">16.34</td>
+<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">8.03-24.59</td>
 </tr>
 </tbody>
 </table>
