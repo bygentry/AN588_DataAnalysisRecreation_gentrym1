@@ -702,6 +702,10 @@ slr_summary <- pmap_dfr(inputs, function(m, table_name){
 slr_summary
 ```
 
-![These tables are also very close. It looks like my model identified a breakpoint (bp) for the collagen female only model at 4.3 that Sandel's teams model didn't, so my bp2 is their bp1 and my bp3 is their bp2 while their bp3 is **`NA`** .](img/table2.png)
+#### Sandel et al. Table 2
+
+![](img/table2.png)
+
+These tables are also very close. It looks like my model identified a breakpoint (bp) for the female only collagen model at 4.3 years old that Sandel's team's models didn't. As a consequence, their bp1 is my bp2 and their bp2 is my bp3 while their bp3 is `NA`.
 
 Overall, I think I did a pretty good job replicating their analysis but I'm curious why the female only models behaved so strangely for me.
