@@ -33,6 +33,32 @@ Using our setup script, we load the necessary packages and data before prepping 
 5.  relevant variables are extracted
 6.  `NA` values are omitted from the data sets.
 
+Let's take the averages for each individual
+
+```{r}
+#| label: averaging data
+
+coll_data <- collag1 %>%
+  group_by(individualID) %>%
+  summarise(
+    # the mean age across sample collection dates for each individual
+    mean_age = mean(sampleAge),
+    # the mean concentration of collagen (corr. SG) for each individual
+    mean_con = mean(NTXnM_SG),
+    sex = first(Sex)
+  )
+
+ostc_data <- osteoc1 %>% 
+  group_by(individualID) %>% 
+  summarise(
+    # the mean age across sample collection dates for each individual
+    mean_age = mean(sampleAge),
+    # the mean concentration of osteocalcin (corr. SG) for each individual
+    mean_con = mean(uMidOC_SG),
+    sex = first(Sex)
+  )
+```
+
 Let's make some pointers for easier calls throughout this analysis:
 
 ```{r}
@@ -40,15 +66,11 @@ Let's make some pointers for easier calls throughout this analysis:
 #| echo: true 
 #| message: false
 
-# the concentration of collagen corrected for standard gravity
-c1_con <- collag1$NTXnM_SG
-# the ages across sample collection dates
-c1_age <- collag1$sampleAge
+c_con <- coll_data$mean_con
+c_age <- coll_data$mean_age
 
-# the concentration of osteocalcin corrected for standard gravity
-oc1_con <- osteoc1$uMidOC_SG
-# the ages across sample collection dates
-oc1_age <- osteoc1$sampleAge
+o_con <- ostc_data$mean_con
+o_age <- ostc_data$mean_age
 ```
 
 We then apply a Box-Cox transformation to the biomarker concentration data to ensure we meet the assumptions of generalized additive modelling (GAM) and segmented regression (SR) and increase our confidence in the models:
@@ -56,16 +78,13 @@ We then apply a Box-Cox transformation to the biomarker concentration data to en
 ```{r}
 #| label: Box-Cox - Calculating Lambda
 
-# Box-Cox requires positive values, but the osteocalcin concentrations for Fisher are all 0. The paper doesn't specify how they handled this, so I'm adding a 1e-9 to every value to maintain a similar scale but not exclude the values.
-oc1_con[] <- oc1_con[] + 1e-9
-
 # create a plot grid to present the boxcox results side-by-side
 par(mfrow = c(1, 2))
 
 # use Box-Cox from the MASS package to estimate the optimal lambda for approximating normality
-boxcox(lm(c1_con ~ c1_age))
+boxcox(lm(c_con ~ c_age))
 title("A. Collagen")
-boxcox(lm(oc1_con ~ oc1_age))
+boxcox(lm(o_con ~ o_age))
 title("B. Osteocalcin")
 
 # reset plot grid setting
@@ -81,11 +100,11 @@ Now that we have our $\lambda$ we can apply the transformation to approximate a 
 #| fig-show: hide
 
 # extract the lambda 
-b <- boxcox(lm(c1_con ~ c1_age))
+b <- boxcox(lm(c_con ~ c_age))
 lambda_c <- b$x[which.max(b$y)]
 
 # extract the lambda
-b <- boxcox(lm(oc1_con ~ oc1_age))
+b <- boxcox(lm(o_con ~ o_age))
 lambda_oc <- b$x[which.max(b$y)]
 ```
 
@@ -106,8 +125,8 @@ Since $\lambda$ is greater than 0, we use the formula `(y^lambda - 1) / lambda`
 #| label: Box-Cox - Applying Transformation
 
 # apply the transformation
-c_conT <- (c1_con^lambda_c - 1) / lambda_c
-oc_conT <- (oc1_con^lambda_oc - 1) / lambda_oc
+coll_data$c_conT <- (c_con^lambda_c - 1) / lambda_c
+coll_data$o_conT <- (o_con^lambda_oc - 1) / lambda_oc
 ```
 
 Now that our data is transformed, we can create GAMs using the `gam()` function from the `mgcv` package.
@@ -116,22 +135,36 @@ Now that our data is transformed, we can create GAMs using the `gam()` function 
 #| label: generalized additive models
 
 # both sexes
-cgam_mf <- gam(c_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = collag1)
+cgam_mf <- gam(c_conT ~ s(mean_age, bs = "cr"), method = "REML", data = coll_data)
 
-ocgam_mf <- gam(oc_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = osteoc1)
+ogam_mf <- gam(o_conT ~ s(mean_age, bs = "cr"), method = "REML", data = ostc_data)
 
 # males only
-cgam_m <- gam(c_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = collag1, subset = Sex == "Male")
+cgam_m <- gam(c_conT ~ s(mean_age, bs = "cr"), method = "REML", data = filter(coll_data, sex == "Male"))
 
-ocgam_m <- gam(oc_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = osteoc1, subet = Sex == "Male")
+ogam_m <- gam(o_conT ~ s(mean_age, bs = "cr"), method = "REML", data = filter(ostc_data, sex == "Male"))
 
 # females only
-cgam_f <- gam(c_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = collag1, subset = Sex == "Female")
+cgam_f <- gam(c_conT ~ s(mean_age, bs = "cr"), method = "REML", data = filter(coll_data, sex == "Female"))
 
-ocgam_f <- gam(oc_conT ~ s(sampleAge, bs = "cr"), method = "REML", data = osteoc1, subset = Sex == "Female")
+ogam_f <- gam(o_conT ~ s(mean_age, bs = "cr"), method = "REML", data = filter(ostc_data, sex == "Female"))
 ```
 
 ```{r}
-ggplot(collag1, aes(x = sampleAge, y = c_conT)) + 
-  abline()
+#ggplot(collag1, aes(x = sampleAge, y = c_conT))
+#draw(cgam_mf, ci_level = 0.95)
+
+# Add fitted values + 95% CI to your data
+fitted_df <- fitted_values(cgam_mf, data = collag1, include_data = TRUE, scale = "response")
+
+ggplot(fitted_df, aes(x = sampleAge, y = .fitted)) +
+  geom_ribbon(aes(ymin = .lower_ci, ymax = .upper_ci), fill = "lightblue", alpha = 0.4) +
+  geom_line(color = "blue", size = 1.2) +
+  geom_point(aes(y = c_conT), color = "gray50", alpha = 0.5, size = 1) +
+  labs(
+    x = "Age",
+    y = "Collagen concentration (nM, SG-corrected)",
+    title = "GAM Fit with 95% CI"
+  ) +
+  theme_minimal()
 ```
