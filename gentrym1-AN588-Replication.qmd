@@ -204,6 +204,8 @@ But we still need to extract the ages at which each GAM peaks and while we're at
 
 ```{r}
 #| label: extracting peak ages
+#| message: false
+#| warning: false
 peak_ages <- list()
 # starting with collagen
 # make a dataframe of the derivatives of cgam
@@ -242,6 +244,8 @@ Now we just need to repeat this process for all of the other models
 ```{r}
 #| label: extracting peak ages II
 #| code-fold: true
+#| warning: false
+#| message: false 
 
 # now we repeat for all the other models
 # cgam_m
